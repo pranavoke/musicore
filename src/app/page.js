@@ -8,12 +8,13 @@ const INSTRUMENTS = [
   { id: 'guitar', name: 'Guitar', emoji: '🎸', desc: 'Acoustic or electric — from first chords to full solos. Rock, classical, fingerstyle.', color: '#E8633A' },
   { id: 'piano', name: 'Piano', emoji: '🎹', desc: 'Classical foundations to contemporary styles. All ages, all levels welcome.', color: '#4A90D9' },
   { id: 'drums', name: 'Drums', emoji: '🥁', desc: 'Rhythm, technique, and groove. Electronic or acoustic — we bring the gear.', color: '#9B59B6' },
+  { id: 'vocals', name: 'Vocals', emoji: '🎤', desc: 'Breath control, pitch, tone and performance. Pop, R&B, classical — find and own your voice.', color: '#2ECC71' },
 ]
 
 const PACKAGES = [
-  { name: 'Single', sessions: 1, price: 149, tag: null, perks: ['60-min session', 'Any instrument', 'Flexible timing', 'Online or at home'] },
-  { name: 'Monthly', sessions: 4, price: 499, tag: 'Most Popular', perks: ['4 sessions / month', 'Same teacher every time', 'Progress tracking', 'WhatsApp group support'] },
-  { name: 'Quarterly', sessions: 12, price: 1299, tag: 'Best Value', perks: ['12 sessions / 3 months', 'Priority scheduling', 'Free instrument assessment', 'Performance recording'] },
+  { name: 'Single', sessions: 1, price: { 45: 200, 60:230 }, tag: null, perks: ['Any instrument', 'Flexible timing', 'Online or at home'] },
+  { name: 'Monthly', sessions: 4, price: { 45: 230, 60: 920 }, tag: 'Most Popular', perks: ['4 sessions / month', 'Same teacher every time', 'Progress tracking', 'WhatsApp group support'] },
+  { name: 'Quarterly', sessions: 12, price: { 45: 999, 60: 1299 }, tag: 'Best Value', perks: ['12 sessions / 3 months', 'Priority scheduling', 'Free instrument assessment', 'Performance recording'] },
 ]
 
 const FAQS = [
@@ -183,7 +184,7 @@ function Hero() {
 
         {/* Stats */}
         <div style={{ display: 'flex', gap: '2.5rem', marginTop: '3.5rem', flexWrap: 'wrap', ...anim(0.45) }}>
-          {[['6+', 'Years in Dubai'], ['50+', 'Happy Students'], ['3', 'Instruments'], ['Online & Home', 'Lessons']].map(([val, label]) => (
+          {[['6+', 'Years in Dubai'], ['50+', 'Happy Students'], ['4', 'Instruments'], ['Online & Home', 'Lessons']].map(([val, label]) => (
             <div key={label}>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.75rem', color: '#E8633A', letterSpacing: '0.05em' }}>{val}</div>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{label}</div>
@@ -227,7 +228,7 @@ function LessonTypes() {
               Learn from the comfort of your home via video call. Flexible scheduling, professional teachers, and the same quality experience — anywhere in the world.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
-              {['Learn from anywhere, anytime', 'Recorded sessions on request', 'Perfect for busy schedules', 'All instruments supported'].map(p => (
+              {['Learn from anywhere, anytime', 'Perfect for busy schedules', 'Instrument of your choice'].map(p => (
                 <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
                   <span style={{ color: '#4A90D9' }}>✓</span> {p}
                 </li>
@@ -256,12 +257,12 @@ function LessonTypes() {
           >
             <div style={{ position: 'absolute', top: 0, right: 0, width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(232,99,58,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ fontSize: '2.8rem', marginBottom: '1.2rem' }}>🏠</div>
-            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#E8633A', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>One-on-One Home Lessons</h3>
+            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#E8633A', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>Home Lessons</h3>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, margin: '0 0 2rem' }}>
               Your dedicated teacher comes directly to your home across Dubai. A truly personal experience — your space, your pace, your music.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
-              {['Teacher comes to your door', 'Covering all Dubai areas', 'Fully personalised lesson plans', 'Beginner to advanced'].map(p => (
+              {['Teacher comes to your door', 'Covering all Dubai areas', 'Fully personalised lesson plans', 'Lessons tailored to your skill level'].map(p => (
                 <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
                   <span style={{ color: '#E8633A' }}>✓</span> {p}
                 </li>
@@ -328,24 +329,26 @@ function WhyMusicore() {
   return (
     <section id="why" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', textAlign: 'center', marginBottom: '3.5rem' }}>
+        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '4rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>The Musicore Difference</p>
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>Why Musicore Lessons?</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.5rem' }}>
+        <div>
           {WHY_ITEMS.map((item, i) => (
             <div key={item.title} style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: '16px', padding: '2.2rem 1.8rem',
-              opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(35px)',
-              transition: `all 0.65s ease ${i * 0.1}s`,
+              display: 'grid', gridTemplateColumns: '3.5rem 1fr 2fr', gap: '2rem', alignItems: 'center',
+              padding: '2rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
+              opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)',
+              transition: `all 0.6s ease ${i * 0.1}s`, cursor: 'default',
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(232,99,58,0.35)'; e.currentTarget.style.background = 'rgba(232,99,58,0.05)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(232,99,58,0.03)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              <div style={{ fontSize: '2.2rem', marginBottom: '1.1rem' }}>{item.icon}</div>
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1rem', color: '#fff', margin: '0 0 0.75rem', lineHeight: 1.3 }}>{item.title}</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, margin: 0 }}>{item.desc}</p>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'rgba(232,99,58,0.35)', letterSpacing: '0.05em', lineHeight: 1 }}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1.05rem', color: '#fff', margin: 0, lineHeight: 1.35 }}>{item.title}</h3>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.9rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, margin: 0 }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -428,17 +431,33 @@ function HowItWorks() {
 // ─── PRICING ──────────────────────────────────────────────────────────────────
 function Pricing() {
   const [ref, visible] = useInView()
+  const [duration, setDuration] = useState(60)
   return (
     <section id="pricing" ref={ref} style={{ background: '#0A0806', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Plans & Pricing</p>
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: '0 0 0.4rem', letterSpacing: '0.02em' }}>Simple Pricing</h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.45)', fontSize: '0.95rem' }}>All prices in AED · Applies to both online and home lessons · No hidden fees</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.45)', fontSize: '0.95rem', marginBottom: '2rem' }}>All prices in AED · Applies to both online and home lessons · No hidden fees</p>
+
+          {/* Duration toggle */}
+          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '4px' }}>
+            {[45, 60].map(d => (
+              <button key={d} onClick={() => setDuration(d)} style={{
+                padding: '0.45rem 1.4rem', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.88rem',
+                background: duration === d ? '#E8633A' : 'transparent',
+                color: duration === d ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'all 0.2s',
+              }}>{d} min</button>
+            ))}
+          </div>
         </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PACKAGES.map((pkg, i) => {
             const isPopular = pkg.tag === 'Most Popular'
+            const price = pkg.price[duration]
             return (
               <div key={pkg.name} style={{
                 background: isPopular ? 'rgba(232,99,58,0.08)' : 'rgba(255,255,255,0.03)',
@@ -452,10 +471,12 @@ function Pricing() {
                 )}
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em' }}>{pkg.name}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', margin: '0.5rem 0 0.2rem' }}>
-                  <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.4rem', color: '#fff', letterSpacing: '-0.01em' }}>{pkg.price}</span>
+                  <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.4rem', color: '#fff', letterSpacing: '-0.01em', transition: 'all 0.2s' }}>{price}</span>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', color: 'rgba(255,255,255,0.35)' }}>AED</span>
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1.8rem' }}>{pkg.sessions} session{pkg.sessions > 1 ? 's' : ''} · {Math.round(pkg.price / pkg.sessions)} AED each</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1.8rem' }}>
+                  {pkg.sessions} session{pkg.sessions > 1 ? 's' : ''} · {Math.round(price / pkg.sessions)} AED each · {duration} min
+                </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
                   {pkg.perks.map(p => (
                     <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.58)', padding: '0.35rem 0', display: 'flex', gap: '0.5rem' }}>
