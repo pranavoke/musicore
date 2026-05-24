@@ -1,6 +1,166 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 
+// ─── BOOKING MODAL ────────────────────────────────────────────────────────────
+const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
+
+function BookingModal({ onClose, defaultFormat }) {
+  const [form, setForm] = useState({
+    name: '', whatsapp: '', instrument: '', format: defaultFormat || '',
+    preferred_date: '', preferred_time: '', duration: '60', notes: '',
+  })
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  // Lock scroll
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/public/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      setDone(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputStyle = {
+    width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '8px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.93rem',
+    outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
+  }
+  const labelStyle = { display: 'block', fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.35rem', letterSpacing: '0.04em' }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 200,
+      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+    }} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div style={{
+        background: '#0F0D0B', border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '20px', padding: '2.2rem', width: '100%', maxWidth: '520px',
+        maxHeight: '90vh', overflowY: 'auto', position: 'relative',
+      }}>
+        <button onClick={onClose} style={{
+          position: 'absolute', top: '1.2rem', right: '1.2rem',
+          background: 'rgba(255,255,255,0.06)', border: 'none', color: 'rgba(255,255,255,0.5)',
+          borderRadius: '6px', width: '30px', height: '30px', cursor: 'pointer', fontSize: '1rem',
+        }}>✕</button>
+
+        {done ? (
+          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎵</div>
+            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#fff', margin: '0 0 0.5rem' }}>Booking Received!</h3>
+            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+              We've got your request and will assign you a teacher shortly. We'll reach out on WhatsApp to confirm your slot.
+            </p>
+            <button onClick={onClose} style={{
+              background: '#E8633A', color: '#fff', border: 'none', borderRadius: '8px',
+              padding: '0.75rem 2rem', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 500,
+            }}>Done</button>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontSize: '0.72rem', letterSpacing: '0.14em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Book a Lesson</p>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#fff', margin: '0 0 1.8rem', letterSpacing: '0.02em' }}>Request Your Slot</h2>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={labelStyle}>Your Name *</label>
+                  <input style={inputStyle} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Alex" required />
+                </div>
+                <div>
+                  <label style={labelStyle}>WhatsApp Number *</label>
+                  <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="971XXXXXXXXX" required />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={labelStyle}>Instrument *</label>
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.instrument} onChange={e => set('instrument', e.target.value)} required>
+                    <option value="">Select</option>
+                    {BOOKING_INSTRUMENTS.map(i => <option key={i} value={i}>{i}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Lesson Format *</label>
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.format} onChange={e => set('format', e.target.value)} required>
+                    <option value="">Select</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">At Home</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={labelStyle}>Preferred Date</label>
+                  <input type="date" style={inputStyle} value={form.preferred_date} onChange={e => set('preferred_date', e.target.value)} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Preferred Time</label>
+                  <input type="time" style={inputStyle} value={form.preferred_time} onChange={e => set('preferred_time', e.target.value)} />
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Duration</label>
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  {['45', '60'].map(d => (
+                    <button type="button" key={d} onClick={() => set('duration', d)} style={{
+                      flex: 1, padding: '0.6rem', borderRadius: '8px', cursor: 'pointer',
+                      border: form.duration === d ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
+                      background: form.duration === d ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
+                      color: form.duration === d ? '#E8633A' : 'rgba(255,255,255,0.45)',
+                      fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', transition: 'all 0.15s',
+                    }}>{d} min</button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Anything else we should know?</label>
+                <textarea rows={3} style={{ ...inputStyle, resize: 'vertical' }} value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Age, experience level, specific goals..." />
+              </div>
+
+              {error && (
+                <div style={{ background: 'rgba(220,50,50,0.1)', border: '1px solid rgba(220,50,50,0.3)', borderRadius: '8px', padding: '0.7rem 1rem', fontSize: '0.85rem', color: '#ff6b6b' }}>
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} style={{
+                background: '#E8633A', color: '#fff', border: 'none', borderRadius: '8px',
+                padding: '0.88rem', cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '0.95rem', fontWeight: 500, opacity: loading ? 0.7 : 1, marginTop: '0.3rem',
+              }}>{loading ? 'Submitting...' : 'Request Booking'}</button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const WHATSAPP_NUMBER = '971XXXXXXXXX'
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Musicore!%20I%27d%20like%20to%20book%20a%20lesson.`
 
@@ -53,7 +213,7 @@ function WhatsAppIcon({ size = 20 }) {
   )
 }
 
-function Navbar() {
+function Navbar({ onBook }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40)
@@ -109,7 +269,7 @@ function Navbar() {
           >{label}</button>
         ))}
 
-        <button onClick={() => scrollTo('lessons')} style={{
+        <button onClick={onBook} style={{
           background: '#E8633A', color: '#fff', border: 'none', borderRadius: '6px',
           padding: '0.5rem 1.2rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
           fontWeight: 500, fontSize: '0.88rem', letterSpacing: '0.03em', transition: 'background 0.2s',
@@ -122,7 +282,7 @@ function Navbar() {
   )
 }
 
-function Hero() {
+function Hero({ onBook }) {
   const [loaded, setLoaded] = useState(false)
   useEffect(() => { setTimeout(() => setLoaded(true), 120) }, [])
 
@@ -157,20 +317,19 @@ function Hero() {
 
         {/* Two main CTAs */}
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', ...anim(0.35) }}>
-          <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
+          <button onClick={onBook}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.6rem',
-              background: '#25D366', color: '#fff', borderRadius: '8px',
-              padding: '0.9rem 1.8rem', textDecoration: 'none',
+              background: '#E8633A', color: '#fff', borderRadius: '8px',
+              padding: '0.9rem 1.8rem', border: 'none', cursor: 'pointer',
               fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.95rem',
-              boxShadow: '0 0 30px rgba(37,211,102,0.2)', transition: 'all 0.2s',
+              boxShadow: '0 0 30px rgba(232,99,58,0.25)', transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#1fb855'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#25D366'; e.currentTarget.style.transform = 'translateY(0)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#d4572f'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#E8633A'; e.currentTarget.style.transform = 'translateY(0)' }}
           >
-            <WhatsAppIcon size={18} />
-            We'll Get In Touch With You!
-          </a>
+            Book a Lesson
+          </button>
           <button onClick={() => document.getElementById('lessons')?.scrollIntoView({ behavior: 'smooth' })}
             style={{
               background: 'transparent', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.22)',
@@ -197,7 +356,7 @@ function Hero() {
 }
 
 // ─── LESSON TYPES (Online + Home) ────────────────────────────────────────────
-function LessonTypes() {
+function LessonTypes({ onBookOnline, onBookHome }) {
   const [ref, visible] = useInView()
 
   const cardStyle = (glowColor) => ({
@@ -235,7 +394,7 @@ function LessonTypes() {
               ))}
             </ul>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+              <button onClick={onBookOnline}
                 style={{ background: '#4A90D9', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.75rem 1.4rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.9rem', transition: 'background 0.2s' }}
                 onMouseEnter={e => e.target.style.background = '#3a7bc8'}
                 onMouseLeave={e => e.target.style.background = '#4A90D9'}
@@ -269,7 +428,7 @@ function LessonTypes() {
               ))}
             </ul>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+              <button onClick={onBookHome}
                 style={{ background: '#E8633A', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.75rem 1.4rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.9rem', transition: 'background 0.2s' }}
                 onMouseEnter={e => e.target.style.background = '#d4572f'}
                 onMouseLeave={e => e.target.style.background = '#E8633A'}
@@ -429,7 +588,7 @@ function HowItWorks() {
 }
 
 // ─── PRICING ──────────────────────────────────────────────────────────────────
-function Pricing() {
+function Pricing({ onBook }) {
   const [ref, visible] = useInView()
   const [duration, setDuration] = useState(60)
   return (
@@ -485,7 +644,7 @@ function Pricing() {
                   ))}
                 </ul>
                 <div style={{ display: 'flex', gap: '0.6rem', flexDirection: 'column' }}>
-                  <button style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.92rem', border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)', background: isPopular ? '#E8633A' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
+                  <button onClick={onBook} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.92rem', border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)', background: isPopular ? '#E8633A' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
                     onMouseEnter={e => { e.currentTarget.style.background = isPopular ? '#d4572f' : 'rgba(255,255,255,0.08)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = isPopular ? '#E8633A' : 'transparent' }}
                   >Book {pkg.name} Plan</button>
@@ -632,6 +791,8 @@ function Footer() {
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
+  const [booking, setBooking] = useState(null) // null | 'Online' | 'Offline'
+
   return (
     <>
       <style>{`
@@ -646,14 +807,15 @@ export default function Home() {
           .contact-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
         }
       `}</style>
-      <Navbar />
-      <Hero />
-      <LessonTypes />
+      {booking && <BookingModal defaultFormat={booking} onClose={() => setBooking(null)} />}
+      <Navbar onBook={() => setBooking('Online')} />
+      <Hero onBook={() => setBooking('Online')} />
+      <LessonTypes onBookOnline={() => setBooking('Online')} onBookHome={() => setBooking('Offline')} />
       <About />
       <WhyMusicore />
       <Instruments />
       <HowItWorks />
-      <Pricing />
+      <Pricing onBook={() => setBooking('Online')} />
       <FAQ />
       <Contact />
       <Footer />

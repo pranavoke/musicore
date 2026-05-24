@@ -1,0 +1,53 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #0A0806; }
+input, button, textarea, select { font-family: inherit; }
+a { text-decoration: none; }
+
+/* Animations */
+@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+/* Portal hover utilities */
+.quick-action:hover { opacity: 0.85; }
+.stat-card:hover { border-color: rgba(255,255,255,0.14) !important; }
+.lesson-row:hover { background: rgba(255,255,255,0.05) !important; }
+.cta-btn:hover { filter: brightness(0.88); }
+
+/* Portal layout — desktop default */
+.portal-main {
+  margin-left: 240px;
+  flex: 1;
+  padding: 2.5rem 3rem;
+  min-height: 100vh;
+}
+
+.desktop-sidebar { display: flex !important; }
+.mobile-header   { display: none !important; }
+.mobile-drawer   { display: flex !important; }
+.mobile-only     { display: none !important; }
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+  .desktop-sidebar { display: none !important; }
+  .mobile-header   { display: flex !important; }
+  .mobile-only     { display: block !important; }
+
+  .portal-main {
+    margin-left: 0;
+    padding: 1.4rem 1.2rem;
+    padding-top: calc(56px + 1.4rem); /* account for mobile header height */
+  }
+
+  /* Stack 2-col grids on mobile */
+  .portal-main [style*="gridTemplateColumns: '1fr 1fr'"],
+  .portal-main [style*="gridTemplateColumns: \"1fr 1fr\""],
+  .portal-main [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Teacher/admin detail 2-col grid */
+  .portal-main [style*="gridTemplateColumns: '1fr 1.4fr'"],
+  .portal-main [style*="gridTemplateColumns: '1fr 2fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+}

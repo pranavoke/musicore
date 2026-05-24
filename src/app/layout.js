@@ -1,3 +1,5 @@
+import './globals.css'
+
 export const metadata = {
   title: 'Musicore | Home Music Lessons in Dubai – Guitar, Piano & Drums',
   description: 'Book professional music lessons at your home in Dubai. Expert teachers for Guitar, Piano and Drums. Flexible slots, all skill levels welcome.',
