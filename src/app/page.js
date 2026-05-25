@@ -4,9 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 // ─── BOOKING MODAL ────────────────────────────────────────────────────────────
 const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
 
-function BookingModal({ onClose, defaultFormat }) {
+const PLANS = [
+  { name: 'Single',    sessions: '1 session',              price: { 45: 200,  60: 230  } },
+  { name: 'Monthly',   sessions: '4 sessions / month',     price: { 45: 800,  60: 920  } },
+  { name: 'Quarterly', sessions: '12 sessions / 3 months', price: { 45: 2700, 60: 2700 } },
+]
+
+function BookingModal({ onClose, defaultFormat, defaultPlan }) {
   const [form, setForm] = useState({
-    name: '', whatsapp: '', instrument: '', format: defaultFormat || '',
+    name: '', whatsapp: '', email: '', instrument: '', format: defaultFormat || '',
+    plan: defaultPlan || 'Single',
     preferred_date: '', preferred_time: '', duration: '60', notes: '',
   })
   const [loading, setLoading] = useState(false)
@@ -28,7 +35,7 @@ function BookingModal({ onClose, defaultFormat }) {
       const res = await fetch('/api/public/booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, plan: form.plan || null }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
@@ -40,10 +47,17 @@ function BookingModal({ onClose, defaultFormat }) {
     }
   }
 
+  const today = new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const minTime = form.preferred_date === today
+    ? `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    : undefined
+
   const inputStyle = {
     width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.93rem',
     outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
+    colorScheme: 'dark',
   }
   const labelStyle = { display: 'block', fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.35rem', letterSpacing: '0.04em' }
 
@@ -52,7 +66,7 @@ function BookingModal({ onClose, defaultFormat }) {
       position: 'fixed', inset: 0, zIndex: 200,
       background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-    }} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+    }}>
       <div style={{
         background: '#0F0D0B', border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: '20px', padding: '2.2rem', width: '100%', maxWidth: '520px',
@@ -93,6 +107,11 @@ function BookingModal({ onClose, defaultFormat }) {
                 </div>
               </div>
 
+              <div>
+                <label style={labelStyle}>Email <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}>(for booking confirmation)</span></label>
+                <input type="email" style={inputStyle} value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={labelStyle}>Instrument *</label>
@@ -111,29 +130,56 @@ function BookingModal({ onClose, defaultFormat }) {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={labelStyle}>Preferred Date</label>
-                  <input type="date" style={inputStyle} value={form.preferred_date} onChange={e => set('preferred_date', e.target.value)} />
+              {/* Duration + Plan — grouped together since duration affects price */}
+              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>Session Duration</label>
+                  <div style={{ display: 'flex', gap: '0.6rem' }}>
+                    {['45', '60'].map(d => (
+                      <button type="button" key={d} onClick={() => set('duration', d)} style={{
+                        flex: 1, padding: '0.6rem', borderRadius: '8px', cursor: 'pointer',
+                        border: form.duration === d ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
+                        background: form.duration === d ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
+                        color: form.duration === d ? '#E8633A' : 'rgba(255,255,255,0.45)',
+                        fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', transition: 'all 0.15s',
+                      }}>{d} min</button>
+                    ))}
+                  </div>
                 </div>
+
                 <div>
-                  <label style={labelStyle}>Preferred Time</label>
-                  <input type="time" style={inputStyle} value={form.preferred_time} onChange={e => set('preferred_time', e.target.value)} />
+                  <label style={labelStyle}>Plan *</label>
+                  <div style={{ display: 'flex', gap: '0.6rem' }}>
+                    {PLANS.map(p => {
+                      const selected = form.plan === p.name
+                      const price = p.price[parseInt(form.duration)]
+                      return (
+                        <button type="button" key={p.name}
+                          onClick={() => set('plan', p.name)}
+                          style={{
+                            flex: 1, padding: '0.65rem 0.3rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                            border: selected ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
+                            background: selected ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
+                            fontFamily: "'DM Sans', sans-serif", transition: 'all 0.15s',
+                          }}>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 600, color: selected ? '#E8633A' : 'rgba(255,255,255,0.7)', marginBottom: '3px' }}>{p.name}</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: selected ? '#E8633A' : '#fff' }}>AED {price}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>{p.sessions}</div>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label style={labelStyle}>Duration</label>
-                <div style={{ display: 'flex', gap: '0.6rem' }}>
-                  {['45', '60'].map(d => (
-                    <button type="button" key={d} onClick={() => set('duration', d)} style={{
-                      flex: 1, padding: '0.6rem', borderRadius: '8px', cursor: 'pointer',
-                      border: form.duration === d ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
-                      background: form.duration === d ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
-                      color: form.duration === d ? '#E8633A' : 'rgba(255,255,255,0.45)',
-                      fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', transition: 'all 0.15s',
-                    }}>{d} min</button>
-                  ))}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={labelStyle}>Preferred Date</label>
+                  <input type="date" style={inputStyle} min={today} value={form.preferred_date} onChange={e => set('preferred_date', e.target.value)} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Preferred Time</label>
+                  <input type="time" style={inputStyle} min={minTime} value={form.preferred_time} onChange={e => set('preferred_time', e.target.value)} />
                 </div>
               </div>
 
@@ -161,7 +207,7 @@ function BookingModal({ onClose, defaultFormat }) {
   )
 }
 
-const WHATSAPP_NUMBER = '971XXXXXXXXX'
+const WHATSAPP_NUMBER = '971585698904'
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Musicore!%20I%27d%20like%20to%20book%20a%20lesson.`
 
 const INSTRUMENTS = [
@@ -172,9 +218,9 @@ const INSTRUMENTS = [
 ]
 
 const PACKAGES = [
-  { name: 'Single', sessions: 1, price: { 45: 200, 60:230 }, tag: null, perks: ['Any instrument', 'Flexible timing', 'Online or at home'] },
-  { name: 'Monthly', sessions: 4, price: { 45: 230, 60: 920 }, tag: 'Most Popular', perks: ['4 sessions / month', 'Same teacher every time', 'Progress tracking', 'WhatsApp group support'] },
-  { name: 'Quarterly', sessions: 12, price: { 45: 999, 60: 1299 }, tag: 'Best Value', perks: ['12 sessions / 3 months', 'Priority scheduling', 'Free instrument assessment', 'Performance recording'] },
+  { name: 'Single',    sessions: 1,  price: { 45: 200,  60: 230  }, tag: null,          perks: ['Any instrument', 'Flexible timing', 'Online or at home'] },
+  { name: 'Monthly',   sessions: 4,  price: { 45: 800,  60: 920  }, tag: 'Most Popular', perks: ['4 sessions / month', 'Same teacher every time', 'Progress tracking', 'WhatsApp group support'] },
+  { name: 'Quarterly', sessions: 12, price: { 45: 2700, 60: 2700 }, tag: 'Best Value',   perks: ['12 sessions / 3 months', 'Priority scheduling', 'Free instrument assessment', 'Performance recording'] },
 ]
 
 const FAQS = [
@@ -258,7 +304,7 @@ function Navbar({ onBook }) {
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(37,211,102,0.12)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.3)' }}
         >
           <WhatsAppIcon size={16} />
-          <span>+971 XX XXX XXXX</span>
+          <span>+971 58 569 8904</span>
         </a>
 
         {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => (
@@ -644,7 +690,7 @@ function Pricing({ onBook }) {
                   ))}
                 </ul>
                 <div style={{ display: 'flex', gap: '0.6rem', flexDirection: 'column' }}>
-                  <button onClick={onBook} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.92rem', border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)', background: isPopular ? '#E8633A' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
+                  <button onClick={() => onBook && onBook(pkg.name)} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.92rem', border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)', background: isPopular ? '#E8633A' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
                     onMouseEnter={e => { e.currentTarget.style.background = isPopular ? '#d4572f' : 'rgba(255,255,255,0.08)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = isPopular ? '#E8633A' : 'transparent' }}
                   >Book {pkg.name} Plan</button>
@@ -717,7 +763,7 @@ function Contact() {
             <WhatsAppIcon size={18} /> Chat on WhatsApp
           </a>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[['📍', 'Dubai, UAE — Covering all major areas'], ['📞', '+971 XX XXX XXXX'], ['✉️', 'hello@musicore.ae']].map(([icon, text]) => (
+            {[['📍', 'Dubai, UAE — Covering all major areas'], ['📞', '+971 58 569 8904'], ['✉️', 'hello@musicore.ae']].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)' }}>
                 <span>{icon}</span><span>{text}</span>
               </div>
@@ -791,7 +837,9 @@ function Footer() {
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
-  const [booking, setBooking] = useState(null) // null | 'Online' | 'Offline'
+  // booking = null | { format: 'Online'|'Offline', plan: string }
+  const [booking, setBooking] = useState(null)
+  const book = (format = 'Online', plan = '') => setBooking({ format, plan })
 
   return (
     <>
@@ -807,15 +855,21 @@ export default function Home() {
           .contact-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
         }
       `}</style>
-      {booking && <BookingModal defaultFormat={booking} onClose={() => setBooking(null)} />}
-      <Navbar onBook={() => setBooking('Online')} />
-      <Hero onBook={() => setBooking('Online')} />
-      <LessonTypes onBookOnline={() => setBooking('Online')} onBookHome={() => setBooking('Offline')} />
+      {booking && (
+        <BookingModal
+          defaultFormat={booking.format}
+          defaultPlan={booking.plan}
+          onClose={() => setBooking(null)}
+        />
+      )}
+      <Navbar onBook={() => book('Online')} />
+      <Hero onBook={() => book('Online')} />
+      <LessonTypes onBookOnline={() => book('Online')} onBookHome={() => book('Offline')} />
       <About />
       <WhyMusicore />
       <Instruments />
       <HowItWorks />
-      <Pricing onBook={() => setBooking('Online')} />
+      <Pricing onBook={(plan) => book('Online', plan)} />
       <FAQ />
       <Contact />
       <Footer />

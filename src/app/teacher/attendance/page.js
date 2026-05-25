@@ -1,9 +1,137 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const FORMATS = ['Online', 'Offline', 'Individual Lesson', 'Group Lesson']
+
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+function VideoUpload({ onUploadComplete }) {
+  const [status, setStatus] = useState('idle') // idle | uploading | done | error
+  const [progress, setProgress] = useState(0)
+  const [fileName, setFileName] = useState('')
+  const [videoUrl, setVideoUrl] = useState('')
+  const [dragOver, setDragOver] = useState(false)
+  const inputRef = useRef(null)
+
+  async function uploadFile(file) {
+    if (!file) return
+    if (!file.type.startsWith('video/')) {
+      setStatus('error')
+      return
+    }
+    const maxMB = 100
+    if (file.size > maxMB * 1024 * 1024) {
+      setStatus('error')
+      setFileName(`File too large (max ${maxMB}MB)`)
+      return
+    }
+
+    setFileName(file.name)
+    setStatus('uploading')
+    setProgress(0)
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', UPLOAD_PRESET)
+    formData.append('resource_type', 'video')
+
+    try {
+      const xhr = new XMLHttpRequest()
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100))
+      }
+      xhr.onload = () => {
+        const data = JSON.parse(xhr.responseText)
+        if (xhr.status === 200 && data.secure_url) {
+          setVideoUrl(data.secure_url)
+          setStatus('done')
+          onUploadComplete(data.secure_url)
+        } else {
+          setStatus('error')
+          setFileName(data.error?.message || 'Upload failed')
+        }
+      }
+      xhr.onerror = () => { setStatus('error'); setFileName('Network error') }
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`)
+      xhr.send(formData)
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragOver(false)
+    uploadFile(e.dataTransfer.files[0])
+  }
+
+  function handleRemove() {
+    setStatus('idle')
+    setProgress(0)
+    setFileName('')
+    setVideoUrl('')
+    onUploadComplete('')
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>
+        Lesson Video <span style={{ color: 'rgba(255,255,255,0.25)' }}>(optional · max 100MB)</span>
+      </label>
+
+      {status === 'done' ? (
+        /* Uploaded state */
+        <div style={{ border: '1px solid rgba(46,204,113,0.3)', borderRadius: '10px', padding: '1rem 1.2rem', background: 'rgba(46,204,113,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.4rem' }}>🎥</span>
+            <div>
+              <div style={{ fontSize: '0.85rem', color: '#2ECC71', fontWeight: 500 }}>✓ Video uploaded</div>
+              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName}</div>
+            </div>
+          </div>
+          <button type="button" onClick={handleRemove} style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '0.3rem 0.7rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            Remove
+          </button>
+        </div>
+      ) : status === 'uploading' ? (
+        /* Progress state */
+        <div style={{ border: '1px solid rgba(232,99,58,0.3)', borderRadius: '10px', padding: '1.2rem 1.4rem', background: 'rgba(232,99,58,0.04)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+            <span style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.6)' }}>Uploading {fileName}</span>
+            <span style={{ fontSize: '0.83rem', color: '#E8633A', fontWeight: 600 }}>{progress}%</span>
+          </div>
+          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '100px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: '#E8633A', borderRadius: '100px', transition: 'width 0.3s ease' }} />
+          </div>
+        </div>
+      ) : (
+        /* Drop zone */
+        <div
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current?.click()}
+          style={{
+            border: `1px dashed ${dragOver ? '#E8633A' : status === 'error' ? 'rgba(220,50,50,0.4)' : 'rgba(255,255,255,0.12)'}`,
+            borderRadius: '10px', padding: '1.8rem', textAlign: 'center',
+            background: dragOver ? 'rgba(232,99,58,0.05)' : 'rgba(255,255,255,0.02)',
+            cursor: 'pointer', transition: 'all 0.2s',
+          }}>
+          <div style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>🎥</div>
+          <div style={{ fontSize: '0.88rem', color: dragOver ? '#E8633A' : 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>
+            {status === 'error' ? (fileName || 'Invalid file — try again') : 'Drop video here or click to browse'}
+          </div>
+          <div style={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.25)' }}>MP4, MOV, WebM · up to 100MB</div>
+          <input ref={inputRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={e => uploadFile(e.target.files[0])} />
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function AttendancePage() {
   const router = useRouter()
@@ -15,6 +143,7 @@ export default function AttendancePage() {
     lesson_date: new Date().toISOString().split('T')[0],
     duration: '60',
     comments: '',
+    video_url: '',
     status: 'submitted',
   })
   const [loading, setLoading] = useState(false)
@@ -59,7 +188,7 @@ export default function AttendancePage() {
       if (!res.ok) throw new Error(data.error || 'Failed to save')
       if (submitStatus === 'submitted') {
         setSuccess(true)
-        setForm({ student_id: '', lesson_format: '', lesson_date: new Date().toISOString().split('T')[0], duration: '60', comments: '', status: 'submitted' })
+        setForm({ student_id: '', lesson_format: '', lesson_date: new Date().toISOString().split('T')[0], duration: '60', comments: '', video_url: '', status: 'submitted' })
       } else {
         router.push('/teacher/history')
       }
@@ -74,6 +203,7 @@ export default function AttendancePage() {
     width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '8px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.93rem',
     outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
+    colorScheme: 'dark',
   }
   const labelStyle = {
     display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)',
@@ -159,23 +289,15 @@ export default function AttendancePage() {
           <label style={labelStyle}>Lesson Notes</label>
           <textarea
             rows={5}
-            placeholder={`Lesson summary, student performance, homework assigned, areas to improve, practice recommendations...`}
+            placeholder="Lesson summary, student performance, homework assigned, areas to improve, practice recommendations..."
             value={form.comments}
             onChange={e => set('comments', e.target.value)}
             style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
           />
         </div>
 
-        {/* Video upload placeholder */}
-        <div style={{
-          border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '10px',
-          padding: '1.4rem', textAlign: 'center',
-          background: 'rgba(255,255,255,0.02)',
-        }}>
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🎥</div>
-          <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.3rem' }}>Video Upload</div>
-          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.2)' }}>Coming soon — upload lesson recordings up to 100MB</div>
-        </div>
+        {/* Video upload */}
+        <VideoUpload onUploadComplete={url => set('video_url', url)} />
 
         {error && (
           <div style={{ background: 'rgba(220,50,50,0.1)', border: '1px solid rgba(220,50,50,0.3)', borderRadius: '8px', padding: '0.75rem 1rem', fontSize: '0.85rem', color: '#ff6b6b' }}>

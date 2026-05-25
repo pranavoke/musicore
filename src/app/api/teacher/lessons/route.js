@@ -17,7 +17,7 @@ export async function POST(request) {
   if (!teacher) return NextResponse.json({ error: 'Teacher profile not found' }, { status: 404 })
 
   const body = await request.json()
-  const { student_id, lesson_format, lesson_date, duration, comments, status } = body
+  const { student_id, lesson_format, lesson_date, duration, comments, video_url, status } = body
 
   const admin = createAdminClient()
   const { data, error } = await admin.from('lessons').insert({
@@ -28,7 +28,7 @@ export async function POST(request) {
     duration: parseInt(duration),
     comments,
     status: status || 'submitted',
-    video_url: null, // placeholder for later
+    video_url: video_url || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
