@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendLessonLogged, sendRenewalReminder } from '@/lib/email'
 import { NextResponse } from 'next/server'
 
 export async function POST(request) {
@@ -34,12 +35,65 @@ export async function POST(request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
-  // Mark the specific lesson_plan slot as completed
+  // Mark the specific lesson_plan slot as completed + send emails
   if (lesson_plan_id) {
     await admin.from('lesson_plans')
       .update({ status: 'completed' })
       .eq('id', lesson_plan_id)
-      .eq('teacher_id', teacher.id) // safety: teacher can only complete their own plans
+      .eq('teacher_id', teacher.id)
+
+    try {
+      // Fetch context for emails
+      const [{ data: plan }, { data: student }, { data: teacherRecord }] = await Promise.all([
+        admin.from('lesson_plans').select('group_id, plan, instrument, lesson_format, duration').eq('id', lesson_plan_id).single(),
+        admin.from('students').select('name, email').eq('id', student_id).single(),
+        admin.from('teachers').select('name, email').eq('id', teacher.id).single(),
+      ])
+
+      // Count progress if part of a group
+      let sessionNum = null, totalSessions = null
+      if (plan?.group_id) {
+        const [{ count: total }, { count: completed }] = await Promise.all([
+          admin.from('lesson_plans').select('*', { count: 'exact', head: true }).eq('group_id', plan.group_id),
+          admin.from('lesson_plans').select('*', { count: 'exact', head: true }).eq('group_id', plan.group_id).eq('status', 'completed'),
+        ])
+        totalSessions = total
+        sessionNum    = completed  // already updated above
+      }
+
+      // Email #3 — lesson logged
+      await sendLessonLogged({
+        studentEmail: student?.email,
+        teacherEmail: teacherRecord?.email,
+        studentName:  student?.name,
+        teacherName:  teacherRecord?.name,
+        lessonDate:   lesson_date,
+        lessonTime:   lesson_time,
+        format:       lesson_format,
+        duration,
+        comments,
+        videoUrl:     video_url,
+        sessionNum,
+        totalSessions,
+      })
+
+      // Email #4 — renewal reminder when 1 session remaining in a group
+      if (plan?.group_id && totalSessions > 1) {
+        const { count: remaining } = await admin.from('lesson_plans')
+          .select('*', { count: 'exact', head: true })
+          .eq('group_id', plan.group_id)
+          .eq('status', 'upcoming')
+
+        if (remaining === 1) {
+          await sendRenewalReminder({
+            studentEmail: student?.email,
+            studentName:  student?.name,
+            plan:         plan.plan,
+            instrument:   plan.instrument,
+          })
+        }
+      }
+    } catch (e) { console.error('[Lesson email]', e.message) }
   }
 
   return NextResponse.json({ success: true, lesson: data })

@@ -43,8 +43,9 @@ export default function AssignDraftSection({ drafts, teachers }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: draft.requester_name,
-          whatsapp: draft.requester_whatsapp,
+          name:      draft.requester_name,
+          whatsapp:  draft.requester_whatsapp,
+          email:     draft.requester_email || null,
           instrument: draft.instrument,
           teacher_id: form.teacher_id,
         }),

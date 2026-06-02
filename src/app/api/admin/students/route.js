@@ -10,7 +10,7 @@ export async function POST(request) {
   const { data: role } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
   if (role?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { name, whatsapp, instrument, teacher_id } = await request.json()
+  const { name, whatsapp, email, instrument, teacher_id } = await request.json()
   if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
 
   const admin = createAdminClient()
@@ -19,7 +19,8 @@ export async function POST(request) {
     .insert({
       name,
       whatsapp_number: whatsapp || null,
-      instrument: instrument || null,
+      email:           email   || null,
+      instrument:      instrument || null,
       assigned_teacher_id: teacher_id || null,
     })
     .select('id')
