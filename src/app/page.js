@@ -4,6 +4,39 @@ import { useState, useEffect, useRef } from 'react'
 // ─── BOOKING MODAL ────────────────────────────────────────────────────────────
 const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
 
+const COUNTRY_CODES = [
+  { code: 'AE', dial: '971',  flag: '🇦🇪', name: 'UAE'          },
+  { code: 'SA', dial: '966',  flag: '🇸🇦', name: 'Saudi Arabia' },
+  { code: 'KW', dial: '965',  flag: '🇰🇼', name: 'Kuwait'       },
+  { code: 'BH', dial: '973',  flag: '🇧🇭', name: 'Bahrain'      },
+  { code: 'QA', dial: '974',  flag: '🇶🇦', name: 'Qatar'        },
+  { code: 'OM', dial: '968',  flag: '🇴🇲', name: 'Oman'         },
+  { code: 'IN', dial: '91',   flag: '🇮🇳', name: 'India'        },
+  { code: 'PK', dial: '92',   flag: '🇵🇰', name: 'Pakistan'     },
+  { code: 'PH', dial: '63',   flag: '🇵🇭', name: 'Philippines'  },
+  { code: 'EG', dial: '20',   flag: '🇪🇬', name: 'Egypt'        },
+  { code: 'JO', dial: '962',  flag: '🇯🇴', name: 'Jordan'       },
+  { code: 'LB', dial: '961',  flag: '🇱🇧', name: 'Lebanon'      },
+  { code: 'GB', dial: '44',   flag: '🇬🇧', name: 'UK'           },
+  { code: 'US', dial: '1',    flag: '🇺🇸', name: 'USA'          },
+  { code: 'CA', dial: '1',    flag: '🇨🇦', name: 'Canada'       },
+  { code: 'AU', dial: '61',   flag: '🇦🇺', name: 'Australia'    },
+  { code: 'DE', dial: '49',   flag: '🇩🇪', name: 'Germany'      },
+  { code: 'FR', dial: '33',   flag: '🇫🇷', name: 'France'       },
+  { code: 'IT', dial: '39',   flag: '🇮🇹', name: 'Italy'        },
+  { code: 'ES', dial: '34',   flag: '🇪🇸', name: 'Spain'        },
+  { code: 'NL', dial: '31',   flag: '🇳🇱', name: 'Netherlands'  },
+  { code: 'RU', dial: '7',    flag: '🇷🇺', name: 'Russia'       },
+  { code: 'CN', dial: '86',   flag: '🇨🇳', name: 'China'        },
+  { code: 'SG', dial: '65',   flag: '🇸🇬', name: 'Singapore'    },
+  { code: 'ZA', dial: '27',   flag: '🇿🇦', name: 'South Africa' },
+  { code: 'NG', dial: '234',  flag: '🇳🇬', name: 'Nigeria'      },
+  { code: 'KE', dial: '254',  flag: '🇰🇪', name: 'Kenya'        },
+  { code: 'NP', dial: '977',  flag: '🇳🇵', name: 'Nepal'        },
+  { code: 'BD', dial: '880',  flag: '🇧🇩', name: 'Bangladesh'   },
+  { code: 'LK', dial: '94',   flag: '🇱🇰', name: 'Sri Lanka'    },
+]
+
 const PLANS = [
   { name: 'Single',    sessions: '1 session',              price: { 45: 200,  60: 230  } },
   { name: 'Monthly',   sessions: '4 sessions / month',     price: { 45: 800,  60: 920  } },
@@ -12,7 +45,7 @@ const PLANS = [
 
 function BookingModal({ onClose, defaultFormat, defaultPlan }) {
   const [form, setForm] = useState({
-    name: '', whatsapp: '', email: '', instrument: '', format: defaultFormat || '',
+    name: '', dialCode: '971', whatsapp: '', email: '', instrument: '', format: defaultFormat || '',
     plan: defaultPlan || 'Single',
     preferred_date: '', preferred_time: '', duration: '60', notes: '',
   })
@@ -32,10 +65,11 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
     setLoading(true)
     setError('')
     try {
+      const fullWhatsapp = form.dialCode + form.whatsapp.replace(/^0+/, '').replace(/\D/g, '')
       const res = await fetch('/api/public/booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, plan: form.plan || null }),
+        body: JSON.stringify({ ...form, whatsapp: fullWhatsapp, plan: form.plan || null }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
@@ -103,7 +137,29 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
                 </div>
                 <div>
                   <label style={labelStyle}>WhatsApp Number *</label>
-                  <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="971XXXXXXXXX" required />
+                  <div style={{ display: 'flex', gap: 0, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', overflow: 'hidden' }}>
+                    <select
+                      value={form.dialCode}
+                      onChange={e => set('dialCode', e.target.value)}
+                      style={{
+                        background: 'rgba(255,255,255,0.06)', border: 'none', borderRight: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff', fontSize: '0.88rem', padding: '0 0.6rem', cursor: 'pointer',
+                        outline: 'none', fontFamily: "'DM Sans', sans-serif", flexShrink: 0, colorScheme: 'dark',
+                      }}>
+                      {COUNTRY_CODES.map(c => (
+                        <option key={c.code} value={c.dial} style={{ background: '#1a1208' }}>
+                          {c.flag} +{c.dial}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      style={{ ...inputStyle, border: 'none', background: 'transparent', borderRadius: 0, flex: 1, minWidth: 0 }}
+                      value={form.whatsapp}
+                      onChange={e => set('whatsapp', e.target.value.replace(/\D/g, ''))}
+                      placeholder="50 123 4567"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -152,19 +208,17 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
                   <div style={{ display: 'flex', gap: '0.6rem' }}>
                     {PLANS.map(p => {
                       const selected = form.plan === p.name
-                      const price = p.price[parseInt(form.duration)]
                       return (
                         <button type="button" key={p.name}
                           onClick={() => set('plan', p.name)}
                           style={{
-                            flex: 1, padding: '0.65rem 0.3rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                            flex: 1, padding: '0.7rem 0.3rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
                             border: selected ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
                             background: selected ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
                             fontFamily: "'DM Sans', sans-serif", transition: 'all 0.15s',
                           }}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 600, color: selected ? '#E8633A' : 'rgba(255,255,255,0.7)', marginBottom: '3px' }}>{p.name}</div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: selected ? '#E8633A' : '#fff' }}>AED {price}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>{p.sessions}</div>
+                          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: selected ? '#E8633A' : 'rgba(255,255,255,0.7)', marginBottom: '3px' }}>{p.name}</div>
+                          <div style={{ fontSize: '0.68rem', color: selected ? 'rgba(232,99,58,0.7)' : 'rgba(255,255,255,0.3)' }}>{p.sessions}</div>
                         </button>
                       )
                     })}
@@ -217,11 +271,6 @@ const INSTRUMENTS = [
   { id: 'vocals', name: 'Vocals', emoji: '🎤', desc: 'Breath control, pitch, tone and performance. Pop, R&B, classical — find and own your voice.', color: '#2ECC71' },
 ]
 
-const PACKAGES = [
-  { name: 'Single',    sessions: 1,  price: { 45: 200,  60: 230  }, tag: null,          perks: ['Any instrument', 'Flexible timing', 'Online or at home'] },
-  { name: 'Monthly',   sessions: 4,  price: { 45: 800,  60: 920  }, tag: 'Most Popular', perks: ['4 sessions / month', 'Same teacher every time', 'Progress tracking', 'WhatsApp group support'] },
-  { name: 'Quarterly', sessions: 12, price: { 45: 2700, 60: 2700 }, tag: 'Best Value',   perks: ['12 sessions / 3 months', 'Priority scheduling', 'Free instrument assessment', 'Performance recording'] },
-]
 
 const FAQS = [
   { q: 'Do you offer online lessons?', a: 'Yes! We offer both online and one-on-one home lessons. Online sessions are conducted via video call at your preferred time. Home lessons are delivered by a professional teacher who comes directly to your door anywhere in Dubai.' },
@@ -307,7 +356,7 @@ function Navbar({ onBook }) {
           <span>+971 58 569 8904</span>
         </a>
 
-        {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['pricing', 'Pricing'], ['faq', 'FAQ']].map(([id, label]) => (
+        {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['faq', 'FAQ'], ['contact', 'Contact']].map(([id, label]) => (
           <button key={id} onClick={() => scrollTo(id)}
             style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', letterSpacing: '0.03em', padding: 0, transition: 'color 0.2s' }}
             onMouseEnter={e => e.target.style.color = '#fff'}
@@ -586,10 +635,18 @@ function Instruments() {
               <div style={{ fontSize: '2.8rem', marginBottom: '1rem' }}>{inst.emoji}</div>
               <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: inst.color, letterSpacing: '0.05em', margin: '0 0 0.75rem' }}>{inst.name}</h3>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.52)', lineHeight: 1.75, margin: '0 0 1.5rem', fontSize: '0.93rem' }}>{inst.desc}</p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
                 <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>Online</span>
                 <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>At Home</span>
               </div>
+              <a href={`https://wa.me/971585698904?text=Hi%20Musicore!%20I%27m%20interested%20in%20${encodeURIComponent(inst.name)}%20lessons.`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.22)', borderRadius: '8px', padding: '0.55rem 1rem', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.08)'}
+              >
+                <WhatsAppIcon size={14} /> Book a Lesson
+              </a>
             </div>
           ))}
         </div>
@@ -605,7 +662,7 @@ function HowItWorks() {
     { n: '01', title: 'Choose Your Lesson Type', body: 'Pick online or home lesson. Then select your instrument and a date and time that works for you.' },
     { n: '02', title: 'We Match You With a Teacher', body: 'Based on your level and preference, we assign the perfect teacher and confirm within hours.' },
     { n: '03', title: 'Get Your WhatsApp Group', body: 'A group is created with you, your teacher, and our team. Share your details and ask anything.' },
-    { n: '04', title: 'Lesson Begins — Your Way', body: 'Join online via video call or open the door — your teacher arrives ready to play.' },
+    { n: '04', title: 'Lesson Begins, Your Way', body: 'Join online via video call or open the door. Your teacher arrives ready to play.' },
   ]
   return (
     <section id="how-it-works" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
@@ -627,84 +684,6 @@ function HowItWorks() {
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.88rem', color: 'rgba(255,255,255,0.48)', lineHeight: 1.75, margin: 0 }}>{s.body}</p>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── PRICING ──────────────────────────────────────────────────────────────────
-function Pricing({ onBook }) {
-  const [ref, visible] = useInView()
-  const [duration, setDuration] = useState(60)
-  return (
-    <section id="pricing" ref={ref} style={{ background: '#0A0806', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Plans & Pricing</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: '0 0 0.4rem', letterSpacing: '0.02em' }}>Simple Pricing</h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.45)', fontSize: '0.95rem', marginBottom: '2rem' }}>All prices in AED · Applies to both online and home lessons · No hidden fees</p>
-
-          {/* Duration toggle */}
-          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '4px' }}>
-            {[45, 60].map(d => (
-              <button key={d} onClick={() => setDuration(d)} style={{
-                padding: '0.45rem 1.4rem', borderRadius: '7px', border: 'none', cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.88rem',
-                background: duration === d ? '#E8633A' : 'transparent',
-                color: duration === d ? '#fff' : 'rgba(255,255,255,0.45)',
-                transition: 'all 0.2s',
-              }}>{d} min</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          {PACKAGES.map((pkg, i) => {
-            const isPopular = pkg.tag === 'Most Popular'
-            const price = pkg.price[duration]
-            return (
-              <div key={pkg.name} style={{
-                background: isPopular ? 'rgba(232,99,58,0.08)' : 'rgba(255,255,255,0.03)',
-                border: isPopular ? '1px solid rgba(232,99,58,0.4)' : '1px solid rgba(255,255,255,0.07)',
-                borderRadius: '16px', padding: '2.5rem 2rem', position: 'relative',
-                opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(38px)',
-                transition: `all 0.65s ease ${i * 0.12}s`,
-              }}>
-                {pkg.tag && (
-                  <div style={{ position: 'absolute', top: '-13px', left: '50%', transform: 'translateX(-50%)', background: isPopular ? '#E8633A' : '#4A90D9', color: '#fff', borderRadius: '100px', padding: '0.28rem 1rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{pkg.tag}</div>
-                )}
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em' }}>{pkg.name}</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', margin: '0.5rem 0 0.2rem' }}>
-                  <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.4rem', color: '#fff', letterSpacing: '-0.01em', transition: 'all 0.2s' }}>{price}</span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.95rem', color: 'rgba(255,255,255,0.35)' }}>AED</span>
-                </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1.8rem' }}>
-                  {pkg.sessions} session{pkg.sessions > 1 ? 's' : ''} · {Math.round(price / pkg.sessions)} AED each · {duration} min
-                </div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
-                  {pkg.perks.map(p => (
-                    <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.58)', padding: '0.35rem 0', display: 'flex', gap: '0.5rem' }}>
-                      <span style={{ color: '#E8633A', fontWeight: 700 }}>✓</span> {p}
-                    </li>
-                  ))}
-                </ul>
-                <div style={{ display: 'flex', gap: '0.6rem', flexDirection: 'column' }}>
-                  <button onClick={() => onBook && onBook(pkg.name)} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.92rem', border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)', background: isPopular ? '#E8633A' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = isPopular ? '#d4572f' : 'rgba(255,255,255,0.08)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = isPopular ? '#E8633A' : 'transparent' }}
-                  >Book {pkg.name} Plan</button>
-                  <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.7rem', borderRadius: '8px', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.2)', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.08)'}
-                  >
-                    <WhatsAppIcon size={14} /> Ask on WhatsApp
-                  </a>
-                </div>
-              </div>
-            )
-          })}
         </div>
       </div>
     </section>
@@ -763,7 +742,7 @@ function Contact() {
             <WhatsAppIcon size={18} /> Chat on WhatsApp
           </a>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[['📍', 'Dubai, UAE — Covering all major areas'], ['📞', '+971 58 569 8904'], ['✉️', 'hello@musicore.ae']].map(([icon, text]) => (
+            {[['📍', 'Dubai, UAE · Covering all major areas'], ['📞', '+971 58 569 8904'], ['✉️', 'hello@musicore.ae']].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)' }}>
                 <span>{icon}</span><span>{text}</span>
               </div>
@@ -869,7 +848,6 @@ export default function Home() {
       <WhyMusicore />
       <Instruments />
       <HowItWorks />
-      <Pricing onBook={(plan) => book('Online', plan)} />
       <FAQ />
       <Contact />
       <Footer />

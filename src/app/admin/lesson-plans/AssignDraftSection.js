@@ -70,6 +70,18 @@ export default function AssignDraftSection({ drafts, teachers }) {
 
       // 3. Create remaining sessions for Monthly / Quarterly plans (weekly cadence)
       const totalSessions = PLAN_SESSIONS[draft.plan] || 1
+      // Shared group_id links all sessions from the same plan together
+      const groupId = totalSessions > 1 ? crypto.randomUUID() : null
+
+      // Patch session 1 with the group_id too
+      if (groupId) {
+        await fetch(`/api/admin/lesson-plans/${draft.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group_id: groupId }),
+        })
+      }
+
       if (totalSessions > 1) {
         const extras = Array.from({ length: totalSessions - 1 }, (_, i) => ({
           teacher_id: form.teacher_id,
@@ -82,6 +94,7 @@ export default function AssignDraftSection({ drafts, teachers }) {
           booking_time: form.booking_time,
           admin_notes: form.admin_notes || null,
           status: 'upcoming',
+          group_id: groupId,
         }))
 
         await Promise.all(extras.map(session =>

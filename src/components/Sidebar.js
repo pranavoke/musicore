@@ -8,6 +8,7 @@ const ADMIN_NAV = [
   { label: 'Teachers',      href: '/admin/teachers',       icon: '🎓' },
   { label: 'Students',      href: '/admin/students',       icon: '👤' },
   { label: 'Lesson Plans',  href: '/admin/lesson-plans',   icon: '📅' },
+  { label: 'Lessons Logged',href: '/admin/lessons',        icon: '📋' },
 ]
 
 const TEACHER_NAV = [

@@ -141,6 +141,7 @@ export default function AttendancePage() {
     student_id: '',
     lesson_format: '',
     lesson_date: new Date().toISOString().split('T')[0],
+    lesson_time: '',
     duration: '60',
     comments: '',
     video_url: '',
@@ -188,7 +189,7 @@ export default function AttendancePage() {
       if (!res.ok) throw new Error(data.error || 'Failed to save')
       if (submitStatus === 'submitted') {
         setSuccess(true)
-        setForm({ student_id: '', lesson_format: '', lesson_date: new Date().toISOString().split('T')[0], duration: '60', comments: '', video_url: '', status: 'submitted' })
+        setForm({ student_id: '', lesson_format: '', lesson_date: new Date().toISOString().split('T')[0], lesson_time: '', duration: '60', comments: '', video_url: '', status: 'submitted' })
       } else {
         router.push('/teacher/history')
       }
@@ -252,7 +253,7 @@ export default function AttendancePage() {
           )}
         </div>
 
-        {/* Format + Date */}
+        {/* Format + Date + Time */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
           <div>
             <label style={labelStyle}>Lesson Format *</label>
@@ -265,6 +266,13 @@ export default function AttendancePage() {
             <label style={labelStyle}>Lesson Date *</label>
             <input type="date" style={inputStyle} value={form.lesson_date} onChange={e => set('lesson_date', e.target.value)} required />
           </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
+          <div>
+            <label style={labelStyle}>Lesson Time</label>
+            <input type="time" style={inputStyle} value={form.lesson_time} onChange={e => set('lesson_time', e.target.value)} />
+          </div>
+          <div /> {/* spacer */}
         </div>
 
         {/* Duration */}
