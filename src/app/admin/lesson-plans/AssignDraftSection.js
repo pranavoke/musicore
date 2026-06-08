@@ -22,10 +22,11 @@ export default function AssignDraftSection({ drafts, teachers }) {
   function openAssign(draft) {
     setAssigning(draft.id)
     setForm({
-      teacher_id: '',
+      teacher_id:   '',
+      plan:         draft.plan || 'Single',
       booking_date: draft.preferred_date || '',
       booking_time: draft.preferred_time || '',
-      admin_notes: draft.admin_notes || '',
+      admin_notes:  draft.admin_notes || '',
     })
     setError('')
   }
@@ -69,8 +70,8 @@ export default function AssignDraftSection({ drafts, teachers }) {
       const planData = await planRes.json()
       if (!planRes.ok) throw new Error(planData.error || 'Failed to assign')
 
-      // 3. Create remaining sessions for Monthly / Quarterly plans (weekly cadence)
-      const totalSessions = PLAN_SESSIONS[draft.plan] || 1
+      // 3. Create remaining sessions based on admin-selected plan (may differ from original request)
+      const totalSessions = PLAN_SESSIONS[form.plan] || 1
       // Shared group_id links all sessions from the same plan together
       const groupId = totalSessions > 1 ? crypto.randomUUID() : null
 
@@ -90,7 +91,7 @@ export default function AssignDraftSection({ drafts, teachers }) {
           instrument: draft.instrument,
           lesson_format: draft.lesson_format,
           duration: draft.duration,
-          plan: draft.plan,
+          plan: form.plan,
           booking_date: addWeeks(form.booking_date, i + 1),
           booking_time: form.booking_time,
           admin_notes: form.admin_notes || null,
@@ -151,12 +152,14 @@ export default function AssignDraftSection({ drafts, teachers }) {
           const eligibleTeachers = teachers.filter(t =>
             t.instrument?.toLowerCase() === draft.instrument?.toLowerCase()
           )
-          const totalSessions = PLAN_SESSIONS[draft.plan] || 1
-          const isRecurring = totalSessions > 1
+          // Use admin's selected plan (from form) when assigning, otherwise fall back to draft's plan for display
+          const activePlan     = assigning === draft.id ? (form.plan || draft.plan || 'Single') : (draft.plan || 'Single')
+          const totalSessions  = PLAN_SESSIONS[activePlan] || 1
+          const isRecurring    = totalSessions > 1
 
           // Preview upcoming dates (only shown when assign form is open and date is picked)
-          const previewDates = (isRecurring && form.booking_date && assigning === draft.id)
-            ? Array.from({ length: totalSessions }, (_, i) => addWeeks(form.booking_date, i))
+          const previewDates = (assigning === draft.id && form.booking_date && PLAN_SESSIONS[form.plan] > 1)
+            ? Array.from({ length: PLAN_SESSIONS[form.plan] }, (_, i) => addWeeks(form.booking_date, i))
             : []
 
           return (
@@ -236,6 +239,31 @@ export default function AssignDraftSection({ drafts, teachers }) {
                       ⚠ No {draft.instrument} teachers found. Add one first.
                     </div>
                   )}
+
+                  {/* Plan override */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={labelStyle}>Plan</label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {['Single', 'Monthly', 'Quarterly'].map(p => (
+                        <button key={p} type="button" onClick={() => set('plan', p)} style={{
+                          flex: 1, padding: '0.5rem 0.3rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                          border: form.plan === p ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
+                          background: form.plan === p ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
+                          fontFamily: 'inherit', transition: 'all 0.15s',
+                        }}>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 500, color: form.plan === p ? '#E8633A' : 'rgba(255,255,255,0.6)' }}>{p}</div>
+                          <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.3)', marginTop: '2px' }}>
+                            {PLAN_SESSIONS[p]} session{PLAN_SESSIONS[p] > 1 ? 's' : ''}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {draft.plan && draft.plan !== form.plan && (
+                      <p style={{ fontSize: '0.72rem', color: '#F5A623', marginTop: '0.4rem' }}>
+                        ⚠ Student requested {draft.plan} — you selected {form.plan}
+                      </p>
+                    )}
+                  </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
                     <div>

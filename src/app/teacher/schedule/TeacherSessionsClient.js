@@ -164,16 +164,27 @@ function LogForm({ session, onDone }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
+async function revertSession(sessionId, onDone) {
+  await fetch(`/api/teacher/lesson-plans/${sessionId}`, { method: 'PATCH' })
+  onDone()
+}
+
 export default function TeacherSessionsClient({ grouped }) {
   const router = useRouter()
   const [expanded,  setExpanded]  = useState({})
-  const [logging,   setLogging]   = useState(null) // session.id being logged
+  const [logging,   setLogging]   = useState(null)
+  const [reverting, setReverting] = useState(null)
 
   const toggle = key => setExpanded(e => ({ ...e, [key]: !e[key] }))
 
   function handleLogged() {
     setLogging(null)
     router.refresh()
+  }
+
+  async function handleRevert(sessionId) {
+    setReverting(sessionId)
+    await revertSession(sessionId, () => { setReverting(null); router.refresh() })
   }
 
   if (!grouped || grouped.length === 0) return (
@@ -289,6 +300,15 @@ export default function TeacherSessionsClient({ grouped }) {
                               onClick={() => setLogging(session.id)}
                               style={{ padding: '0.35rem 0.85rem', background: '#E8633A', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500, fontFamily: 'inherit' }}>
                               Log
+                            </button>
+                          )}
+                          {isDone && (
+                            <button
+                              onClick={() => handleRevert(session.id)}
+                              disabled={reverting === session.id}
+                              title="Mark as upcoming again"
+                              style={{ padding: '0.3rem 0.7rem', background: 'transparent', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', fontFamily: 'inherit', opacity: reverting === session.id ? 0.5 : 1 }}>
+                              {reverting === session.id ? '...' : 'Undo'}
                             </button>
                           )}
                           <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', background: isDone ? 'rgba(74,144,217,0.12)' : 'rgba(46,204,113,0.12)', color: isDone ? '#4A90D9' : '#2ECC71', border: `1px solid ${isDone ? 'rgba(74,144,217,0.3)' : 'rgba(46,204,113,0.3)'}`, textTransform: 'capitalize' }}>

@@ -29,13 +29,13 @@ export default async function StudentsPage() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '12px', padding: '1.2rem 1.6rem',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+            }} className="lesson-row">
+              <Link href={`/admin/students/${s.id}`} style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', textDecoration: 'none', flex: 1 }}>
                 <div style={{
                   width: '42px', height: '42px', borderRadius: '50%',
                   background: 'rgba(74,144,217,0.15)', border: '1px solid rgba(74,144,217,0.3)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: '#4A90D9',
+                  fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: '#4A90D9', flexShrink: 0,
                 }}>{s.name?.[0]?.toUpperCase()}</div>
                 <div>
                   <div style={{ fontWeight: 500, color: '#fff', fontSize: '0.95rem' }}>{s.name}</div>
@@ -43,7 +43,7 @@ export default async function StudentsPage() {
                     {s.whatsapp_number || 'No WhatsApp number'}
                   </div>
                 </div>
-              </div>
+              </Link>
               <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Instrument</div>

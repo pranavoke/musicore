@@ -163,6 +163,58 @@ export async function sendRenewalReminder({ studentEmail, studentName, plan, ins
   ])
 }
 
+// ─── 5. Teacher changed ────────────────────────────────────────────────────────
+export async function sendTeacherChanged({ studentEmail, studentName, oldTeacherEmail, oldTeacherName, newTeacherEmail, newTeacherName, instrument, upcomingSessions }) {
+  const subject = `Teacher update for ${studentName} (${instrument})`
+
+  const studentHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:20px;font-weight:700;color:#fff">Your teacher has been updated 🎵</p>
+    <p style="margin:0 0 20px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7">
+      Hi ${studentName}, your ${instrument} teacher has been changed to <strong style="color:#E8633A">${newTeacherName}</strong>.
+      Your ${upcomingSessions} upcoming session${upcomingSessions !== 1 ? 's have' : ' has'} been reassigned accordingly.
+    </p>
+    ${summaryBox([
+      ['Instrument',   instrument],
+      ['New Teacher',  newTeacherName],
+      ['Sessions',     `${upcomingSessions} upcoming session${upcomingSessions !== 1 ? 's' : ''} reassigned`],
+    ])}
+    ${waButton('Questions? Message us on WhatsApp')}
+  `)
+
+  const oldTeacherHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff">Student reassigned 📋</p>
+    <p style="margin:0 0 16px;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7">
+      Hi ${oldTeacherName}, <strong>${studentName}</strong> (${instrument}) has been reassigned to another teacher.
+      Their ${upcomingSessions} upcoming session${upcomingSessions !== 1 ? 's have' : ' has'} been moved.
+    </p>
+  `)
+
+  const newTeacherHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff">New student assigned to you 👋</p>
+    <p style="margin:0 0 16px;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7">
+      Hi ${newTeacherName}, <strong>${studentName}</strong> (${instrument}) has been assigned to you with ${upcomingSessions} upcoming session${upcomingSessions !== 1 ? 's' : ''}.
+    </p>
+  `)
+
+  const adminHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff">Teacher change confirmed ✅</p>
+    ${summaryBox([
+      ['Student',       studentName],
+      ['Instrument',    instrument],
+      ['Old Teacher',   oldTeacherName],
+      ['New Teacher',   newTeacherName],
+      ['Sessions moved', `${upcomingSessions} upcoming`],
+    ])}
+  `)
+
+  await Promise.all([
+    studentEmail    ? sendEmail({ to: studentEmail,    subject,                                       html: studentHtml    }) : null,
+    oldTeacherEmail ? sendEmail({ to: oldTeacherEmail, subject: `Student ${studentName} reassigned`,  html: oldTeacherHtml }) : null,
+    newTeacherEmail ? sendEmail({ to: newTeacherEmail, subject: `New student: ${studentName}`,        html: newTeacherHtml }) : null,
+    ADMIN_EMAIL     ? sendEmail({ to: ADMIN_EMAIL,     subject,                                       html: adminHtml      }) : null,
+  ])
+}
+
 // ─── Shared HTML helpers ───────────────────────────────────────────────────────
 function emailWrapper(content) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
