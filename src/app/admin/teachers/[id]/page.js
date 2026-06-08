@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import ResetPasswordForm from './ResetPasswordForm'
 
 export default async function TeacherDetailPage({ params }) {
   const { id } = await params
@@ -107,6 +108,8 @@ export default async function TeacherDetailPage({ params }) {
           )}
         </div>
       </div>
+
+      <ResetPasswordForm teacherId={id} />
     </div>
   )
 }
