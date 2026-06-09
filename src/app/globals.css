@@ -2,6 +2,7 @@
 html { scroll-behavior: smooth; }
 body { background: #0A0806; }
 input, button, textarea, select { font-family: inherit; }
+select option { background: #1a1208; color: #fff; }
 a { text-decoration: none; }
 
 /* Animations */

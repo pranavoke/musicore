@@ -20,7 +20,7 @@ export async function sendEmail({ to, subject, html }) {
 
 // ─── 1. Booking confirmation ───────────────────────────────────────────────────
 export async function sendBookingConfirmation({ studentEmail, name, instrument, format, plan, duration, preferred_date, preferred_time }) {
-  const formatLabel = format === 'Offline' ? 'At Home' : 'Online'
+  const formatLabel = format === 'Offline' || format === 'At Home' ? 'At Home' : format
   const subject = `We've received your lesson request, ${name}! 🎵`
 
   const html = emailWrapper(`
@@ -63,7 +63,7 @@ export async function sendBookingConfirmation({ studentEmail, name, instrument, 
 
 // ─── 2. Teacher assignment ─────────────────────────────────────────────────────
 export async function sendTeacherAssignment({ studentEmail, studentName, teacherEmail, teacherName, instrument, format, bookingDate, bookingTime, duration, plan }) {
-  const formatLabel = format === 'Offline' ? 'At Home' : 'Online'
+  const formatLabel = format === 'Offline' || format === 'At Home' ? 'At Home' : format
   const details = [
     ['Instrument', instrument],
     ['Format',     formatLabel],

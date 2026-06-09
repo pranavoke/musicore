@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const FORMATS = ['Online', 'Offline', 'Group Lesson', 'Individual Lesson']
+const FORMATS = ['Online', 'At Home', 'Group Lesson', 'Individual Lesson']
 const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
 
 export default function NewLessonPlanPage() {

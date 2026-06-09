@@ -181,7 +181,7 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
                   <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.format} onChange={e => set('format', e.target.value)} required>
                     <option value="">Select</option>
                     <option value="Online">Online</option>
-                    <option value="Offline">At Home</option>
+                    <option value="At Home">At Home</option>
                   </select>
                 </div>
               </div>
@@ -843,7 +843,7 @@ export default function Home() {
       )}
       <Navbar onBook={() => book('Online')} />
       <Hero onBook={() => book('Online')} />
-      <LessonTypes onBookOnline={() => book('Online')} onBookHome={() => book('Offline')} />
+      <LessonTypes onBookOnline={() => book('Online')} onBookHome={() => book('At Home')} />
       <About />
       <WhyMusicore />
       <Instruments />
