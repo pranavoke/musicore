@@ -353,7 +353,7 @@ function Navbar({ onBook }) {
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(37,211,102,0.12)'; e.currentTarget.style.borderColor = 'rgba(37,211,102,0.3)' }}
         >
           <WhatsAppIcon size={16} />
-          <span>+971 58 569 8904</span>
+          <span>+971 56 796 1376</span>
         </a>
 
         {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['faq', 'FAQ'], ['contact', 'Contact']].map(([id, label]) => (
@@ -742,7 +742,7 @@ function Contact() {
             <WhatsAppIcon size={18} /> Chat on WhatsApp
           </a>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[['📍', 'Dubai, UAE · Covering all major areas'], ['📞', '+971 58 569 8904'], ['✉️', 'hello@musicore.ae']].map(([icon, text]) => (
+            {[['📍', 'Dubai, UAE · Covering all major areas'], ['📞', '+971 56 796 1376'], ['✉️', 'info@musicoreuae.com']].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)' }}>
                 <span>{icon}</span><span>{text}</span>
               </div>
