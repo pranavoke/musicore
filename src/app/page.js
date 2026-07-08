@@ -261,7 +261,7 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
   )
 }
 
-const WHATSAPP_NUMBER = '971585698904'
+const WHATSAPP_NUMBER = '971567961376'
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Musicore!%20I%27d%20like%20to%20book%20a%20lesson.`
 
 const INSTRUMENTS = [
@@ -639,7 +639,7 @@ function Instruments() {
                 <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>Online</span>
                 <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>At Home</span>
               </div>
-              <a href={`https://wa.me/971585698904?text=Hi%20Musicore!%20I%27m%20interested%20in%20${encodeURIComponent(inst.name)}%20lessons.`}
+              <a href={`https://wa.me/971567961376?text=Hi%20Musicore!%20I%27m%20interested%20in%20${encodeURIComponent(inst.name)}%20lessons.`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.22)', borderRadius: '8px', padding: '0.55rem 1rem', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}

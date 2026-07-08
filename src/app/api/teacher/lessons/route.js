@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendLessonLogged, sendRenewalReminder } from '@/lib/email'
+import { sendLessonLogged, sendRenewalReminder, sendTrialFollowUp } from '@/lib/email'
 import { NextResponse } from 'next/server'
 
 export async function POST(request) {
@@ -58,7 +58,7 @@ export async function POST(request) {
           admin.from('lesson_plans').select('*', { count: 'exact', head: true }).eq('group_id', plan.group_id).eq('status', 'completed'),
         ])
         totalSessions = total
-        sessionNum    = completed  // already updated above
+        sessionNum    = completed
       }
 
       // Email #3 — lesson logged
@@ -77,21 +77,29 @@ export async function POST(request) {
         totalSessions,
       })
 
-      // Email #4 — renewal reminder when 1 session remaining in a group
-      if (plan?.group_id && totalSessions > 1) {
-        const { count: remaining } = await admin.from('lesson_plans')
-          .select('*', { count: 'exact', head: true })
-          .eq('group_id', plan.group_id)
-          .eq('status', 'upcoming')
+      // Count all upcoming sessions left for this student (across all plans)
+      const { count: upcomingLeft } = await admin.from('lesson_plans')
+        .select('*', { count: 'exact', head: true })
+        .eq('student_id', student_id)
+        .eq('status', 'upcoming')
 
-        if (remaining === 1) {
-          await sendRenewalReminder({
-            studentEmail: student?.email,
-            studentName:  student?.name,
-            plan:         plan.plan,
-            instrument:   plan.instrument,
-          })
-        }
+      // Email #4a — no upcoming sessions left → trial/single follow-up
+      if (upcomingLeft === 0) {
+        await sendTrialFollowUp({
+          studentEmail: student?.email,
+          studentName:  student?.name,
+          teacherName:  teacherRecord?.name,
+          instrument:   plan?.instrument,
+        })
+      }
+      // Email #4b — exactly 1 session left in a group → renewal reminder
+      else if (upcomingLeft === 1 && plan?.group_id) {
+        await sendRenewalReminder({
+          studentEmail: student?.email,
+          studentName:  student?.name,
+          plan:         plan?.plan,
+          instrument:   plan?.instrument,
+        })
       }
     } catch (e) { console.error('[Lesson email]', e.message) }
   }

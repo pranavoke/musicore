@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 // Update FROM once domain is verified in Resend dashboard
 const FROM        = process.env.EMAIL_FROM   || 'Musicore <onboarding@resend.dev>'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL  || ''
-const WA_LINK     = 'https://wa.me/971585698904'
+const WA_LINK     = 'https://wa.me/971567961376'
 
 // Helper — send to multiple recipients, never crash the main request
 export async function sendEmail({ to, subject, html }) {
@@ -163,7 +163,42 @@ export async function sendRenewalReminder({ studentEmail, studentName, plan, ins
   ])
 }
 
-// ─── 5. Teacher changed ────────────────────────────────────────────────────────
+// ─── 5. Trial follow-up (Single plan completed) ───────────────────────────────
+export async function sendTrialFollowUp({ studentEmail, studentName, teacherName, instrument }) {
+  const subject = `How was your ${instrument} lesson, ${studentName}? 🎵`
+
+  const studentHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:22px;font-weight:700;color:#fff">Hope it was amazing! 🎶</p>
+    <p style="margin:0 0 20px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7">
+      Hi ${studentName}, we hope you had a great time with ${teacherName} for your ${instrument} lesson!
+      Learning an instrument is a journey — and you've just taken the first step.
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7">
+      If you'd like to keep the momentum going, we'd love to set you up with a monthly or quarterly plan — same teacher, same time, no hassle.
+    </p>
+    ${waButton('Continue Learning — Message Us')}
+  `)
+
+  const adminHtml = emailWrapper(`
+    <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff">Single lesson completed 🎵</p>
+    <p style="margin:0 0 16px;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7">
+      <strong>${studentName}</strong> has completed their trial ${instrument} lesson with ${teacherName}.
+      A follow-up email has been sent to them. Consider reaching out to convert them to a monthly plan.
+    </p>
+    ${summaryBox([
+      ['Student',    studentName],
+      ['Teacher',    teacherName],
+      ['Instrument', instrument],
+    ])}
+  `)
+
+  await Promise.all([
+    studentEmail ? sendEmail({ to: studentEmail, subject,                                        html: studentHtml }) : null,
+    ADMIN_EMAIL  ? sendEmail({ to: ADMIN_EMAIL,  subject: `Follow up: ${studentName} (${instrument} trial done)`, html: adminHtml   }) : null,
+  ])
+}
+
+// ─── 6. Teacher changed ────────────────────────────────────────────────────────
 export async function sendTeacherChanged({ studentEmail, studentName, oldTeacherEmail, oldTeacherName, newTeacherEmail, newTeacherName, instrument, upcomingSessions }) {
   const subject = `Teacher update for ${studentName} (${instrument})`
 
