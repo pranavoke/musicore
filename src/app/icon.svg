@@ -1,0 +1,14 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark rounded background -->
+  <rect width="100" height="100" rx="22" fill="#0D0B09"/>
+  <!-- Left arm (white) -->
+  <polygon points="5,94 5,4 26,4 52,49 31,94" fill="#FFFFFF"/>
+  <!-- Right arm (orange) -->
+  <polygon points="52,49 76,4 95,4 95,94 74,94" fill="#E8633A"/>
+  <!-- Musical note: notehead -->
+  <ellipse cx="50" cy="74" rx="7" ry="5" transform="rotate(-20,50,74)" fill="#E8633A"/>
+  <!-- Stem -->
+  <rect x="56" y="49" width="2.5" height="27" fill="#E8633A"/>
+  <!-- Flag -->
+  <path d="M58.5,50 C67,55 65,64 57,68" stroke="#E8633A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

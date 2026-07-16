@@ -27,6 +27,24 @@ a { text-decoration: none; }
 .mobile-drawer   { display: flex !important; }
 .mobile-only     { display: none !important; }
 
+/* Landing page — section padding */
+.page-section { padding: 6rem 6vw; }
+
+@media (max-width: 768px) {
+  .page-section { padding: 3rem 5vw !important; }
+}
+
+/* Landing page — About section mobile */
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .about-left {
+    display: none !important;
+  }
+}
+
 /* Mobile breakpoint */
 @media (max-width: 768px) {
   .desktop-sidebar { display: none !important; }

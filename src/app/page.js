@@ -265,10 +265,10 @@ const WHATSAPP_NUMBER = '971567961376'
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Musicore!%20I%27d%20like%20to%20book%20a%20lesson.`
 
 const INSTRUMENTS = [
-  { id: 'guitar', name: 'Guitar', emoji: '🎸', desc: 'Acoustic or electric — from first chords to full solos. Rock, classical, fingerstyle.', color: '#E8633A' },
+  { id: 'guitar', name: 'Guitar', emoji: '🎸', desc: 'Acoustic or electric. From first chords to full solos. Rock, classical, fingerstyle.', color: '#E8633A' },
   { id: 'piano', name: 'Piano', emoji: '🎹', desc: 'Classical foundations to contemporary styles. All ages, all levels welcome.', color: '#4A90D9' },
-  { id: 'drums', name: 'Drums', emoji: '🥁', desc: 'Rhythm, technique, and groove. Electronic or acoustic — we bring the gear.', color: '#9B59B6' },
-  { id: 'vocals', name: 'Vocals', emoji: '🎤', desc: 'Breath control, pitch, tone and performance. Pop, R&B, classical — find and own your voice.', color: '#2ECC71' },
+  { id: 'drums', name: 'Drums', emoji: '🥁', desc: 'Rhythm, technique, and groove. Electronic or acoustic, we bring the gear.', color: '#9B59B6' },
+  { id: 'vocals', name: 'Vocals', emoji: '🎤', desc: 'Breath control, pitch, tone and performance. Pop, R&B, classical. Find and own your voice.', color: '#2ECC71' },
 ]
 
 
@@ -277,13 +277,13 @@ const FAQS = [
   { q: 'Do I need to own an instrument?', a: 'For guitar and piano we recommend having one at home, but we can help beginners select the right one. For drums, we bring a portable electronic kit for the first few lessons.' },
   { q: 'What areas in Dubai do you cover?', a: 'We cover all major areas including Downtown, Marina, JBR, Jumeirah, Business Bay, DIFC, Mirdif, Deira, and more. Enter your area at booking and we will confirm availability.' },
   { q: 'How do lessons work after booking?', a: 'Once you book, a WhatsApp group is created with you, your assigned teacher, and our team. Everything from scheduling to lesson notes happens right there.' },
-  { q: 'What age groups do you teach?', a: 'We teach all ages — from 5-year-olds to adults. Our teachers adapt lessons to the learner, not the other way around.' },
+  { q: 'What age groups do you teach?', a: 'We teach all ages, from 5-year-olds to adults. Our teachers adapt lessons to the learner, not the other way around.' },
   { q: 'What is your cancellation policy?', a: 'Cancel or reschedule up to 24 hours before a session at no charge. Late cancellations may forfeit the session credit.' },
 ]
 
 const WHY_ITEMS = [
-  { icon: '⏰', title: 'Timely Lessons', desc: 'We respect your schedule. Sessions start on time, every time — no waiting around.' },
-  { icon: '🏠', title: 'Convenience at Your Doorstep', desc: 'Your teacher comes to you. No commute, no hassle — just music in the comfort of your home.' },
+  { icon: '⏰', title: 'Timely Lessons', desc: 'We respect your schedule. Sessions start on time, every time. No waiting around.' },
+  { icon: '🏠', title: 'Convenience at Your Doorstep', desc: 'Your teacher comes to you. No commute, no hassle. Just music in the comfort of your home.' },
   { icon: '💰', title: 'Affordable Plans', desc: 'Flexible pricing from single sessions to quarterly plans. Quality music education that fits your budget.' },
   { icon: '🎓', title: 'Professional Guidance', desc: 'All our teachers are trained, vetted musicians with years of teaching experience across all levels.' },
 ]
@@ -328,13 +328,13 @@ function Navbar({ onBook }) {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       height: '68px',
     }}>
-      {/* Logo + tagline */}
+      {/* Logo */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
         <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.7rem', letterSpacing: '0.08em', color: '#fff' }}>
           MUSI<span style={{ color: '#E8633A' }}>CORE</span>
         </div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '1px' }}>
-          The Musician In You!
+          The Musician In You
         </div>
       </div>
 
@@ -388,63 +388,37 @@ function Hero({ onBook }) {
   })
 
   return (
-    <section style={{
-      minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      justifyContent: 'center', alignItems: 'flex-start',
-      padding: '80px 6vw 4rem', position: 'relative', overflow: 'hidden',
-      background: '#0A0806',
-    }}>
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 72% 40%, rgba(232,99,58,0.13) 0%, transparent 68%), radial-gradient(ellipse 50% 40% at 25% 80%, rgba(74,144,217,0.07) 0%, transparent 60%)' }} />
-      <div style={{ position: 'absolute', right: '-1vw', top: '50%', transform: 'translateY(-50%)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(110px, 20vw, 310px)', color: 'rgba(255,255,255,0.022)', letterSpacing: '-0.02em', userSelect: 'none', lineHeight: 1, pointerEvents: 'none' }}>MUSIC</div>
-
-      <div style={{ maxWidth: '780px', position: 'relative' }}>
-        <div style={{ display: 'inline-block', background: 'rgba(232,99,58,0.14)', border: '1px solid rgba(232,99,58,0.3)', borderRadius: '100px', padding: '0.28rem 1rem', marginBottom: '1.4rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.78rem', color: '#E8633A', letterSpacing: '0.1em', textTransform: 'uppercase', ...anim(0.05) }}>
-          Founded in Dubai, 2019
-        </div>
-
-        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(54px, 9.5vw, 118px)', lineHeight: 0.93, letterSpacing: '0.01em', color: '#fff', margin: '0 0 1.5rem', ...anim(0.15) }}>
-          The Musician<br /><span style={{ color: '#E8633A' }}>In You</span><br />Starts Here.
-        </h1>
-
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 'clamp(0.95rem, 1.4vw, 1.15rem)', color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, margin: '0 0 2.5rem', maxWidth: '540px', ...anim(0.25) }}>
-          Musicore is dedicated to delivering a personalized music learning experience tailored to every student's unique goals. Whether you're a beginner or an enthusiast — every lesson is engaging, inspiring, and perfectly in tune with your journey.
-        </p>
-
-        {/* Two main CTAs */}
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', ...anim(0.35) }}>
-          <button onClick={onBook}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.6rem',
-              background: '#E8633A', color: '#fff', borderRadius: '8px',
-              padding: '0.9rem 1.8rem', border: 'none', cursor: 'pointer',
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.95rem',
-              boxShadow: '0 0 30px rgba(232,99,58,0.25)', transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#d4572f'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#E8633A'; e.currentTarget.style.transform = 'translateY(0)' }}
-          >
-            Book a Lesson
-          </button>
-          <button onClick={() => document.getElementById('lessons')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{
-              background: 'transparent', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.22)',
-              borderRadius: '8px', padding: '0.9rem 1.8rem', cursor: 'pointer',
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: '0.95rem', transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; e.currentTarget.style.color = '#fff' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)' }}
-          >Explore Lessons ↓</button>
-        </div>
-
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '3.5rem', flexWrap: 'wrap', ...anim(0.45) }}>
-          {[['6+', 'Years in Dubai'], ['50+', 'Happy Students'], ['4', 'Instruments'], ['Online & Home', 'Lessons']].map(([val, label]) => (
-            <div key={label}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.75rem', color: '#E8633A', letterSpacing: '0.05em' }}>{val}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{label}</div>
-            </div>
-          ))}
-        </div>
+    <section style={{ width: '100%', marginTop: '68px' }}>
+      <img
+        src="/hero-banner.png"
+        alt="The Musician In You Starts Here"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+      />
+      {/* CTA row below banner */}
+      <div style={{ background: '#0A0806', padding: '2rem 6vw', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button onClick={onBook}
+          style={{
+            background: '#E8633A', color: '#fff', borderRadius: '8px',
+            padding: '0.9rem 2.2rem', border: 'none', cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1rem',
+            boxShadow: '0 0 24px rgba(232,99,58,0.3)', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#d4572f'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#E8633A'; e.currentTarget.style.transform = 'translateY(0)' }}
+        >Book a Lesson</button>
+        <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)',
+            borderRadius: '8px', padding: '0.9rem 2.2rem', textDecoration: 'none',
+            color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1rem',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.1)'}
+        >
+          <WhatsAppIcon size={18} /> Chat on WhatsApp
+        </a>
       </div>
     </section>
   )
@@ -461,7 +435,7 @@ function LessonTypes({ onBookOnline, onBookHome }) {
   })
 
   return (
-    <section id="lessons" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="lessons" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>How You Learn</p>
@@ -479,7 +453,7 @@ function LessonTypes({ onBookOnline, onBookHome }) {
             <div style={{ fontSize: '2.8rem', marginBottom: '1.2rem' }}>💻</div>
             <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#4A90D9', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>Online Lessons</h3>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, margin: '0 0 2rem' }}>
-              Learn from the comfort of your home via video call. Flexible scheduling, professional teachers, and the same quality experience — anywhere in the world.
+              Learn from the comfort of your home via video call. Flexible scheduling, professional teachers, and the same quality experience, anywhere in the world.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
               {['Learn from anywhere, anytime', 'Perfect for busy schedules', 'Instrument of your choice'].map(p => (
@@ -513,7 +487,7 @@ function LessonTypes({ onBookOnline, onBookHome }) {
             <div style={{ fontSize: '2.8rem', marginBottom: '1.2rem' }}>🏠</div>
             <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#E8633A', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>Home Lessons</h3>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, margin: '0 0 2rem' }}>
-              Your dedicated teacher comes directly to your home across Dubai. A truly personal experience — your space, your pace, your music.
+              Your dedicated teacher comes directly to your home across Dubai. A truly personal experience. Your space, your pace, your music.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
               {['Teacher comes to your door', 'Covering all Dubai areas', 'Fully personalised lesson plans', 'Lessons tailored to your skill level'].map(p => (
@@ -548,10 +522,10 @@ function LessonTypes({ onBookOnline, onBookHome }) {
 function About() {
   const [ref, visible] = useInView()
   return (
-    <section id="about" ref={ref} style={{ background: '#0A0806', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '5rem', alignItems: 'center' }}>
-        {/* Left — big year + accent */}
-        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateX(0)' : 'translateX(-30px)', transition: 'all 0.8s ease', position: 'relative' }}>
+    <section id="about" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="about-grid" style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '5rem', alignItems: 'center' }}>
+        {/* Left — big year + accent (hidden on mobile) */}
+        <div className="about-left" style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateX(0)' : 'translateX(-30px)', transition: 'all 0.8s ease', position: 'relative' }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(100px, 14vw, 180px)', lineHeight: 1, color: 'rgba(232,99,58,0.12)', letterSpacing: '-0.02em', userSelect: 'none' }}>2019</div>
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: '#E8633A', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Founded</div>
@@ -581,7 +555,7 @@ function About() {
 function WhyMusicore() {
   const [ref, visible] = useInView()
   return (
-    <section id="why" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="why" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '4rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>The Musicore Difference</p>
@@ -615,7 +589,7 @@ function WhyMusicore() {
 function Instruments() {
   const [ref, visible] = useInView()
   return (
-    <section id="instruments" ref={ref} style={{ background: '#0A0806', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="instruments" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>What We Teach</p>
@@ -665,7 +639,7 @@ function HowItWorks() {
     { n: '04', title: 'Lesson Begins, Your Way', body: 'Join online via video call or open the door. Your teacher arrives ready to play.' },
   ]
   return (
-    <section id="how-it-works" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="how-it-works" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3.5rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>The Process</p>
@@ -695,7 +669,7 @@ function FAQ() {
   const [ref, visible] = useInView()
   const [open, setOpen] = useState(null)
   return (
-    <section id="faq" ref={ref} style={{ background: '#0D0B09', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="faq" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '780px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Got Questions?</p>
@@ -726,7 +700,7 @@ function Contact() {
   const [sent, setSent] = useState(false)
 
   return (
-    <section id="contact" ref={ref} style={{ background: '#0A0806', padding: '6rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="contact" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }} className="contact-grid">
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.7rem' }}>Get In Touch</p>
@@ -796,7 +770,7 @@ function Footer() {
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)' }}>
             MUSI<span style={{ color: '#E8633A' }}>CORE</span>
           </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '2px' }}>The Musician In You!</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '2px' }}>The Musician In You</div>
         </div>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.78rem', color: 'rgba(255,255,255,0.22)', margin: 0 }}>
           © 2025 Musicore. Online & Home Music Lessons, Dubai.

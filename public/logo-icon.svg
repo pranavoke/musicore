@@ -1,0 +1,12 @@
+<svg viewBox="0 0 202 188" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left arm (white — for dark backgrounds) -->
+  <polygon points="10,182 10,8 50,8 104,96 62,182" fill="#FFFFFF"/>
+  <!-- Right arm (orange) -->
+  <polygon points="104,96 152,8 192,8 192,182 148,182" fill="#E8633A"/>
+  <!-- Musical note: notehead -->
+  <ellipse cx="99" cy="148" rx="14" ry="10" transform="rotate(-20,99,148)" fill="#E8633A"/>
+  <!-- Stem -->
+  <rect x="111" y="96" width="5" height="55" fill="#E8633A"/>
+  <!-- Eighth-note flag -->
+  <path d="M116,98 C134,108 130,128 116,136" stroke="#E8633A" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+</svg>
