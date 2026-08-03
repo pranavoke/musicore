@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 // ─── BOOKING MODAL ────────────────────────────────────────────────────────────
-const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
+const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals', 'Violin']
 
 const COUNTRY_CODES = [
   { code: 'AE', dial: '971',  flag: '🇦🇪', name: 'UAE'          },
@@ -54,7 +54,6 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
   const [error, setError] = useState('')
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  // Lock scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -186,7 +185,6 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
                 </div>
               </div>
 
-              {/* Duration + Plan — grouped together since duration affects price */}
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem' }}>
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={labelStyle}>Session Duration</label>
@@ -269,8 +267,8 @@ const INSTRUMENTS = [
   { id: 'piano', name: 'Piano', emoji: '🎹', desc: 'Classical foundations to contemporary styles. All ages, all levels welcome.', color: '#4A90D9' },
   { id: 'drums', name: 'Drums', emoji: '🥁', desc: 'Rhythm, technique, and groove. Electronic or acoustic, we bring the gear.', color: '#9B59B6' },
   { id: 'vocals', name: 'Vocals', emoji: '🎤', desc: 'Breath control, pitch, tone and performance. Pop, R&B, classical. Find and own your voice.', color: '#2ECC71' },
+  { id: 'violin', name: 'Violin', emoji: '🎻', desc: 'Classical technique to contemporary styles. Build tone, precision and musicality from the ground up.', color: '#E8A838' },
 ]
-
 
 const FAQS = [
   { q: 'Do you offer online lessons?', a: 'Yes! We offer both online and one-on-one home lessons. Online sessions are conducted via video call at your preferred time. Home lessons are delivered by a professional teacher who comes directly to your door anywhere in Dubai.' },
@@ -299,7 +297,6 @@ function useInView(threshold = 0.12) {
   return [ref, visible]
 }
 
-// WhatsApp SVG icon
 function WhatsAppIcon({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -309,26 +306,19 @@ function WhatsAppIcon({ size = 20 }) {
 }
 
 function Navbar({ onBook }) {
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', fn)
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
       padding: '0 5vw',
-      background: scrolled ? 'rgba(10,8,6,0.97)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(14px)' : 'none',
-      borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
+      background: 'rgba(10,8,6,0.97)',
+      backdropFilter: 'blur(14px)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
       transition: 'all 0.3s ease',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       height: '68px',
     }}>
-      {/* Logo */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
         <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.7rem', letterSpacing: '0.08em', color: '#fff' }}>
           MUSI<span style={{ color: '#E8633A' }}>CORE</span>
@@ -338,9 +328,7 @@ function Navbar({ onBook }) {
         </div>
       </div>
 
-      {/* Right side — WhatsApp + nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }} className="desktop-nav">
-        {/* WhatsApp CTA */}
         <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
@@ -377,31 +365,58 @@ function Navbar({ onBook }) {
   )
 }
 
-function Hero({ onBook }) {
-  const [loaded, setLoaded] = useState(false)
-  useEffect(() => { setTimeout(() => setLoaded(true), 120) }, [])
+const BANNERS = ['/hero-banner-1.png', '/hero-banner-2.png']
 
-  const anim = (delay = 0) => ({
-    opacity: loaded ? 1 : 0,
-    transform: loaded ? 'translateY(0)' : 'translateY(28px)',
-    transition: `all 0.85s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
-  })
+function Hero({ onBook }) {
+  const [current, setCurrent] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrent(c => (c + 1) % BANNERS.length), 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <section style={{ width: '100%', marginTop: '68px' }}>
-      <img
-        src="/hero-banner.png"
-        alt="The Musician In You Starts Here"
-        style={{ width: '100%', height: 'auto', display: 'block' }}
-      />
-      {/* CTA row below banner */}
-      <div style={{ background: '#0A0806', padding: '2rem 6vw', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+      {/* Crossfade carousel */}
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        {BANNERS.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt="The Musician In You Starts Here"
+            style={{
+              width: '100%', height: 'auto', display: 'block',
+              position: i === 0 ? 'relative' : 'absolute',
+              top: i === 0 ? 'auto' : 0,
+              left: i === 0 ? 'auto' : 0,
+              opacity: current === i ? 1 : 0,
+              transition: 'opacity 1s ease',
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+
+        {/* Dot indicators */}
+        <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+          {BANNERS.map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} style={{
+              width: '10px', height: '10px', borderRadius: '50%', border: 'none', padding: 0,
+              background: current === i ? '#E8633A' : 'rgba(255,255,255,0.45)',
+              cursor: 'pointer', transition: 'all 0.3s',
+              boxShadow: current === i ? '0 0 6px rgba(232,99,58,0.6)' : 'none',
+            }} />
+          ))}
+        </div>
+      </div>
+
+      {/* CTA strip */}
+      <div style={{ background: '#120C07', padding: '2rem 6vw', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <button onClick={onBook}
           style={{
             background: '#E8633A', color: '#fff', borderRadius: '8px',
             padding: '0.9rem 2.2rem', border: 'none', cursor: 'pointer',
             fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1rem',
-            boxShadow: '0 0 24px rgba(232,99,58,0.3)', transition: 'all 0.2s',
+            boxShadow: '0 0 24px rgba(232,99,58,0.35)', transition: 'all 0.2s',
           }}
           onMouseEnter={e => { e.currentTarget.style.background = '#d4572f'; e.currentTarget.style.transform = 'translateY(-2px)' }}
           onMouseLeave={e => { e.currentTarget.style.background = '#E8633A'; e.currentTarget.style.transform = 'translateY(0)' }}
@@ -424,40 +439,40 @@ function Hero({ onBook }) {
   )
 }
 
-// ─── LESSON TYPES (Online + Home) ────────────────────────────────────────────
+// ─── LESSON TYPES ─────────────────────────────────────────────────────────────
 function LessonTypes({ onBookOnline, onBookHome }) {
   const [ref, visible] = useInView()
 
-  const cardStyle = (glowColor) => ({
+  const cardBase = {
     flex: '1 1 300px', borderRadius: '20px', padding: '2.8rem 2.4rem',
     position: 'relative', overflow: 'hidden', cursor: 'default',
-    transition: 'transform 0.25s ease',
-  })
+    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+  }
 
   return (
-    <section id="lessons" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="lessons" ref={ref} className="page-section" style={{ background: '#FFF8F0', borderTop: '1px solid rgba(200,140,80,0.12)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>How You Learn</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>Choose Your Format</h2>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#1A0E06', margin: 0, letterSpacing: '0.02em' }}>Choose Your Format</h2>
         </div>
 
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
 
-          {/* Online Lessons */}
-          <div style={{ ...cardStyle('#4A90D9'), background: 'rgba(74,144,217,0.07)', border: '1px solid rgba(74,144,217,0.25)', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.7s ease 0.1s' }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          {/* Online */}
+          <div style={{ ...cardBase, background: '#F0F6FF', border: '1px solid rgba(74,144,217,0.25)', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.7s ease 0.1s' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(74,144,217,0.12)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
           >
-            <div style={{ position: 'absolute', top: 0, right: 0, width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(74,144,217,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: 0, right: 0, width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(74,144,217,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ fontSize: '2.8rem', marginBottom: '1.2rem' }}>💻</div>
             <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#4A90D9', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>Online Lessons</h3>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, margin: '0 0 2rem' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: '#6B4E35', lineHeight: 1.75, margin: '0 0 2rem' }}>
               Learn from the comfort of your home via video call. Flexible scheduling, professional teachers, and the same quality experience, anywhere in the world.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
               {['Learn from anywhere, anytime', 'Perfect for busy schedules', 'Instrument of your choice'].map(p => (
-                <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
+                <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: '#6B4E35', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
                   <span style={{ color: '#4A90D9' }}>✓</span> {p}
                 </li>
               ))}
@@ -469,8 +484,8 @@ function LessonTypes({ onBookOnline, onBookHome }) {
                 onMouseLeave={e => e.target.style.background = '#4A90D9'}
               >Book Online Lesson</button>
               <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: '8px', padding: '0.75rem 1.1rem', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.2)'}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)', borderRadius: '8px', padding: '0.75rem 1.1rem', textDecoration: 'none', color: '#1a9c49', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.1)'}
               >
                 <WhatsAppIcon size={15} /> WhatsApp Us
@@ -478,20 +493,20 @@ function LessonTypes({ onBookOnline, onBookHome }) {
             </div>
           </div>
 
-          {/* Home Lessons */}
-          <div style={{ ...cardStyle('#E8633A'), background: 'rgba(232,99,58,0.07)', border: '1px solid rgba(232,99,58,0.3)', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.7s ease 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          {/* Home */}
+          <div style={{ ...cardBase, background: '#FFF3EE', border: '1px solid rgba(232,99,58,0.25)', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.7s ease 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(232,99,58,0.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
           >
-            <div style={{ position: 'absolute', top: 0, right: 0, width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(232,99,58,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: 0, right: 0, width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(232,99,58,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ fontSize: '2.8rem', marginBottom: '1.2rem' }}>🏠</div>
             <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#E8633A', letterSpacing: '0.04em', margin: '0 0 0.75rem' }}>Home Lessons</h3>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, margin: '0 0 2rem' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.95rem', color: '#6B4E35', lineHeight: 1.75, margin: '0 0 2rem' }}>
               Your dedicated teacher comes directly to your home across Dubai. A truly personal experience. Your space, your pace, your music.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem' }}>
               {['Teacher comes to your door', 'Covering all Dubai areas', 'Fully personalised lesson plans', 'Lessons tailored to your skill level'].map(p => (
-                <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
+                <li key={p} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: '#6B4E35', padding: '0.3rem 0', display: 'flex', gap: '0.5rem' }}>
                   <span style={{ color: '#E8633A' }}>✓</span> {p}
                 </li>
               ))}
@@ -503,8 +518,8 @@ function LessonTypes({ onBookOnline, onBookHome }) {
                 onMouseLeave={e => e.target.style.background = '#E8633A'}
               >Book Home Lesson</button>
               <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: '8px', padding: '0.75rem 1.1rem', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.2)'}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)', borderRadius: '8px', padding: '0.75rem 1.1rem', textDecoration: 'none', color: '#1a9c49', fontFamily: "'DM Sans', sans-serif", fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.1)'}
               >
                 <WhatsAppIcon size={15} /> WhatsApp Us
@@ -518,24 +533,21 @@ function LessonTypes({ onBookOnline, onBookHome }) {
   )
 }
 
-// ─── ABOUT ────────────────────────────────────────────────────────────────────
+// ─── ABOUT ── dark, dramatic storytelling ─────────────────────────────────────
 function About() {
   const [ref, visible] = useInView()
   return (
-    <section id="about" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="about" ref={ref} className="page-section" style={{ background: '#120C07', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div className="about-grid" style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '5rem', alignItems: 'center' }}>
-        {/* Left — big year + accent (hidden on mobile) */}
         <div className="about-left" style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateX(0)' : 'translateX(-30px)', transition: 'all 0.8s ease', position: 'relative' }}>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(100px, 14vw, 180px)', lineHeight: 1, color: 'rgba(232,99,58,0.12)', letterSpacing: '-0.02em', userSelect: 'none' }}>2019</div>
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: '#E8633A', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Founded</div>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em' }}>in Dubai</div>
           </div>
-          {/* Decorative line */}
           <div style={{ width: '60px', height: '3px', background: 'linear-gradient(to right, #E8633A, transparent)', marginTop: '1rem' }} />
         </div>
 
-        {/* Right — copy */}
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateX(0)' : 'translateX(30px)', transition: 'all 0.8s ease 0.15s' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Our Story</p>
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 5vw, 58px)', color: '#fff', margin: '0 0 1.5rem', letterSpacing: '0.02em', lineHeight: 1.05 }}>Music That Moves You Forward</h2>
@@ -551,32 +563,33 @@ function About() {
   )
 }
 
-// ─── WHY MUSICORE ─────────────────────────────────────────────────────────────
+// ─── WHY MUSICORE ── light ─────────────────────────────────────────────────────
 function WhyMusicore() {
   const [ref, visible] = useInView()
   return (
-    <section id="why" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="why" ref={ref} className="page-section" style={{ background: '#FFF8F0', borderTop: '1px solid rgba(200,140,80,0.12)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '4rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>The Musicore Difference</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>Why Musicore Lessons?</h2>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#1A0E06', margin: 0, letterSpacing: '0.02em' }}>Why Musicore Lessons?</h2>
         </div>
         <div>
           {WHY_ITEMS.map((item, i) => (
             <div key={item.title} style={{
               display: 'grid', gridTemplateColumns: '3.5rem 1fr 2fr', gap: '2rem', alignItems: 'center',
-              padding: '2rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
+              padding: '2rem 0', borderBottom: '1px solid rgba(200,140,80,0.14)',
               opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)',
               transition: `all 0.6s ease ${i * 0.1}s`, cursor: 'default',
+              borderRadius: '4px', paddingLeft: '0.5rem', paddingRight: '0.5rem',
             }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(232,99,58,0.03)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(232,99,58,0.04)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'rgba(232,99,58,0.35)', letterSpacing: '0.05em', lineHeight: 1 }}>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'rgba(232,99,58,0.5)', letterSpacing: '0.05em', lineHeight: 1 }}>
                 {String(i + 1).padStart(2, '0')}
               </div>
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '1.05rem', color: '#fff', margin: 0, lineHeight: 1.35 }}>{item.title}</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.9rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, margin: 0 }}>{item.desc}</p>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: '1.05rem', color: '#1A0E06', margin: 0, lineHeight: 1.35 }}>{item.title}</h3>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.9rem', color: '#7A5240', lineHeight: 1.75, margin: 0 }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -585,39 +598,40 @@ function WhyMusicore() {
   )
 }
 
-// ─── INSTRUMENTS ──────────────────────────────────────────────────────────────
+// ─── INSTRUMENTS ── light ──────────────────────────────────────────────────────
 function Instruments() {
   const [ref, visible] = useInView()
   return (
-    <section id="instruments" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="instruments" ref={ref} className="page-section" style={{ background: '#FFF8F0', borderTop: '1px solid rgba(200,140,80,0.12)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>What We Teach</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>Pick Your Instrument</h2>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#1A0E06', margin: 0, letterSpacing: '0.02em' }}>Pick Your Instrument</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {INSTRUMENTS.map((inst, i) => (
             <div key={inst.id} style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+              background: '#fff', border: '1px solid rgba(200,150,100,0.18)',
               borderRadius: '16px', padding: '2.4rem 2rem',
+              boxShadow: '0 2px 16px rgba(26,14,6,0.06)',
               opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(38px)',
               transition: `all 0.7s ease ${i * 0.12}s`,
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = inst.color + '55'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = inst.color + '55'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 8px 32px rgba(26,14,6,0.1)` }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(200,150,100,0.18)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(26,14,6,0.06)' }}
             >
               <div style={{ fontSize: '2.8rem', marginBottom: '1rem' }}>{inst.emoji}</div>
               <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: inst.color, letterSpacing: '0.05em', margin: '0 0 0.75rem' }}>{inst.name}</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.52)', lineHeight: 1.75, margin: '0 0 1.5rem', fontSize: '0.93rem' }}>{inst.desc}</p>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: '#7A5240', lineHeight: 1.75, margin: '0 0 1.5rem', fontSize: '0.93rem' }}>{inst.desc}</p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
-                <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>Online</span>
-                <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>At Home</span>
+                <span style={{ background: 'rgba(200,140,80,0.08)', border: '1px solid rgba(200,140,80,0.2)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: '#9A7260', letterSpacing: '0.05em' }}>Online</span>
+                <span style={{ background: 'rgba(200,140,80,0.08)', border: '1px solid rgba(200,140,80,0.2)', borderRadius: '100px', padding: '0.25rem 0.75rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.72rem', color: '#9A7260', letterSpacing: '0.05em' }}>At Home</span>
               </div>
               <a href={`https://wa.me/971567961376?text=Hi%20Musicore!%20I%27m%20interested%20in%20${encodeURIComponent(inst.name)}%20lessons.`}
                 target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.22)', borderRadius: '8px', padding: '0.55rem 1rem', textDecoration: 'none', color: '#25D366', fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(37,211,102,0.09)', border: '1px solid rgba(37,211,102,0.28)', borderRadius: '8px', padding: '0.55rem 1rem', textDecoration: 'none', color: '#1a9c49', fontFamily: "'DM Sans', sans-serif", fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,211,102,0.18)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,211,102,0.09)'}
               >
                 <WhatsAppIcon size={14} /> Book a Lesson
               </a>
@@ -629,7 +643,7 @@ function Instruments() {
   )
 }
 
-// ─── HOW IT WORKS ─────────────────────────────────────────────────────────────
+// ─── HOW IT WORKS ── dark ─────────────────────────────────────────────────────
 function HowItWorks() {
   const [ref, visible] = useInView()
   const steps = [
@@ -639,7 +653,7 @@ function HowItWorks() {
     { n: '04', title: 'Lesson Begins, Your Way', body: 'Join online via video call or open the door. Your teacher arrives ready to play.' },
   ]
   return (
-    <section id="how-it-works" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="how-it-works" ref={ref} className="page-section" style={{ background: '#120C07', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3.5rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>The Process</p>
@@ -653,7 +667,7 @@ function HowItWorks() {
               opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(38px)',
               transition: `all 0.65s ease ${i * 0.14}s`,
             }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.8rem', color: 'rgba(232,99,58,0.18)', lineHeight: 1, marginBottom: '0.9rem' }}>{s.n}</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.8rem', color: 'rgba(232,99,58,0.22)', lineHeight: 1, marginBottom: '0.9rem' }}>{s.n}</div>
               <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.98rem', color: '#fff', margin: '0 0 0.7rem', lineHeight: 1.4 }}>{s.title}</h3>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.88rem', color: 'rgba(255,255,255,0.48)', lineHeight: 1.75, margin: 0 }}>{s.body}</p>
             </div>
@@ -664,26 +678,26 @@ function HowItWorks() {
   )
 }
 
-// ─── FAQ ──────────────────────────────────────────────────────────────────────
+// ─── FAQ ── light ─────────────────────────────────────────────────────────────
 function FAQ() {
   const [ref, visible] = useInView()
   const [open, setOpen] = useState(null)
   return (
-    <section id="faq" ref={ref} className="page-section" style={{ background: '#0D0B09', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="faq" ref={ref} className="page-section" style={{ background: '#FFF8F0', borderTop: '1px solid rgba(200,140,80,0.12)' }}>
       <div style={{ maxWidth: '780px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease', marginBottom: '3rem' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Got Questions?</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>FAQ</h2>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#1A0E06', margin: 0, letterSpacing: '0.02em' }}>FAQ</h2>
         </div>
         <div style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease 0.2s' }}>
           {FAQS.map((f, i) => (
-            <div key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+            <div key={i} style={{ borderBottom: '1px solid rgba(200,140,80,0.16)', overflow: 'hidden' }}>
               <button onClick={() => setOpen(open === i ? null : i)} style={{ width: '100%', background: 'none', border: 'none', padding: '1.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left', gap: '1rem' }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.97rem', color: '#fff' }}>{f.q}</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.97rem', color: '#1A0E06' }}>{f.q}</span>
                 <span style={{ color: '#E8633A', fontSize: '1.4rem', transition: 'transform 0.3s', transform: open === i ? 'rotate(45deg)' : 'rotate(0)', flexShrink: 0 }}>+</span>
               </button>
               <div style={{ maxHeight: open === i ? '220px' : '0', overflow: 'hidden', transition: 'max-height 0.4s ease', paddingBottom: open === i ? '1.4rem' : '0' }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.92rem', color: 'rgba(255,255,255,0.52)', lineHeight: 1.82, margin: 0 }}>{f.a}</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.92rem', color: '#7A5240', lineHeight: 1.82, margin: 0 }}>{f.a}</p>
               </div>
             </div>
           ))}
@@ -693,19 +707,25 @@ function FAQ() {
   )
 }
 
-// ─── CONTACT ──────────────────────────────────────────────────────────────────
+// ─── CONTACT ── light ─────────────────────────────────────────────────────────
 function Contact() {
   const [ref, visible] = useInView()
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [sent, setSent] = useState(false)
 
+  const inputStyle = {
+    background: '#fff', border: '1px solid rgba(200,150,100,0.25)', borderRadius: '8px',
+    padding: '0.88rem 1.1rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.93rem',
+    color: '#1A0E06', outline: 'none', transition: 'border-color 0.2s',
+  }
+
   return (
-    <section id="contact" ref={ref} className="page-section" style={{ background: '#0A0806', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <section id="contact" ref={ref} className="page-section" style={{ background: '#FFF8F0', borderTop: '1px solid rgba(200,140,80,0.12)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }} className="contact-grid">
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(28px)', transition: 'all 0.7s ease' }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.7rem' }}>Get In Touch</p>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 5vw, 58px)', color: '#fff', margin: '0 0 1.4rem', letterSpacing: '0.02em', lineHeight: 1.05 }}>Have a Question?<br />Let's Talk.</h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: 'rgba(255,255,255,0.48)', lineHeight: 1.82, margin: '0 0 2.5rem', fontSize: '0.92rem' }}>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 5vw, 58px)', color: '#1A0E06', margin: '0 0 1.4rem', letterSpacing: '0.02em', lineHeight: 1.05 }}>Have a Question?<br />Let's Talk.</h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, color: '#7A5240', lineHeight: 1.82, margin: '0 0 2.5rem', fontSize: '0.92rem' }}>
             Not sure whether to go online or home? Want to know what's right for your child? We're just a WhatsApp away.
           </p>
           <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
@@ -717,7 +737,7 @@ function Contact() {
           </a>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[['📍', 'Dubai, UAE · Covering all major areas'], ['📞', '+971 56 796 1376'], ['✉️', 'info@musicoreuae.com']].map(([icon, text]) => (
-              <div key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)' }}>
+              <div key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', color: '#9A7260' }}>
                 <span>{icon}</span><span>{text}</span>
               </div>
             ))}
@@ -728,8 +748,8 @@ function Contact() {
           {sent ? (
             <div style={{ textAlign: 'center', padding: '3.5rem 0' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎵</div>
-              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#fff', margin: '0 0 0.5rem' }}>Message Received!</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.45)', fontSize: '0.92rem' }}>We'll get back to you within a few hours.</p>
+              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: '#1A0E06', margin: '0 0 0.5rem' }}>Message Received!</h3>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", color: '#7A5240', fontSize: '0.92rem' }}>We'll get back to you within a few hours.</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
@@ -738,16 +758,16 @@ function Contact() {
                   placeholder={field.charAt(0).toUpperCase() + field.slice(1) + (field === 'phone' ? ' (WhatsApp preferred)' : '')}
                   value={form[field]}
                   onChange={e => setForm({ ...form, [field]: e.target.value })}
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0.88rem 1.1rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.93rem', color: '#fff', outline: 'none', transition: 'border-color 0.2s' }}
+                  style={inputStyle}
                   onFocus={e => e.target.style.borderColor = 'rgba(232,99,58,0.5)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(200,150,100,0.25)'}
                 />
               ))}
               <textarea placeholder="Your message..." rows={4} value={form.message}
                 onChange={e => setForm({ ...form, message: e.target.value })}
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0.88rem 1.1rem', fontFamily: "'DM Sans', sans-serif", fontSize: '0.93rem', color: '#fff', outline: 'none', resize: 'vertical', transition: 'border-color 0.2s' }}
+                style={{ ...inputStyle, resize: 'vertical' }}
                 onFocus={e => e.target.style.borderColor = 'rgba(232,99,58,0.5)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(200,150,100,0.25)'}
               />
               <button onClick={() => setSent(true)} style={{ background: '#E8633A', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.88rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.97rem', transition: 'background 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#d4572f'}
@@ -764,7 +784,7 @@ function Contact() {
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer style={{ background: '#070604', padding: '2.5rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+    <footer style={{ background: '#0A0806', padding: '2.5rem 6vw', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)' }}>
@@ -790,7 +810,6 @@ function Footer() {
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
-  // booking = null | { format: 'Online'|'Offline', plan: string }
   const [booking, setBooking] = useState(null)
   const book = (format = 'Online', plan = '') => setBooking({ format, plan })
 
@@ -799,7 +818,7 @@ export default function Home() {
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { background: #0A0806; }
+        body { background: #FFF8F0; }
         @keyframes pulse { 0%, 100% { opacity: 0.4 } 50% { opacity: 1 } }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }

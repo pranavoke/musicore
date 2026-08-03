@@ -9,6 +9,7 @@ const ADMIN_NAV = [
   { label: 'Students',      href: '/admin/students',       icon: '👤' },
   { label: 'Lesson Plans',  href: '/admin/lesson-plans',   icon: '📅' },
   { label: 'Lessons Logged',href: '/admin/lessons',        icon: '📋' },
+  { label: 'Invoices',      href: '/admin/invoices',       icon: '🧾' },
 ]
 
 const TEACHER_NAV = [

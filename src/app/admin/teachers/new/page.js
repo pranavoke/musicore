@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
+const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals', 'Violin']
 
 export default function NewTeacherPage() {
   const router = useRouter()

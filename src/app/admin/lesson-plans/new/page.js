@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const FORMATS = ['Online', 'At Home', 'Group Lesson', 'Individual Lesson']
-const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
+const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals', 'Violin']
 
 export default function NewLessonPlanPage() {
   const router = useRouter()

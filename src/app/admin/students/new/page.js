@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals']
+const INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals', 'Violin']
 
 function NewStudentForm() {
   const router = useRouter()
