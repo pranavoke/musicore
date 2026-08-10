@@ -33,17 +33,23 @@ export default async function TeacherDetailPage({ params }) {
         <Link href="/admin/teachers" style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginBottom: '1rem' }}>
           ← Back to Teachers
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-          <div style={{
-            width: '56px', height: '56px', borderRadius: '50%',
-            background: 'rgba(232,99,58,0.15)', border: '1px solid rgba(232,99,58,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.5rem', color: '#E8633A',
-          }}>{teacher.name?.[0]?.toUpperCase()}</div>
-          <div>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', color: '#fff', letterSpacing: '0.02em', margin: '0 0 0.2rem' }}>{teacher.name}</h1>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{teacher.instrument} · {teacher.email}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '50%',
+              background: 'rgba(232,99,58,0.15)', border: '1px solid rgba(232,99,58,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.5rem', color: '#E8633A',
+            }}>{teacher.name?.[0]?.toUpperCase()}</div>
+            <div>
+              <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', color: '#fff', letterSpacing: '0.02em', margin: '0 0 0.2rem' }}>{teacher.name}</h1>
+              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{teacher.instrument} · {teacher.email}</p>
+            </div>
           </div>
+          <Link href={`/admin/teachers/${id}/profile`} style={{
+            padding: '0.6rem 1.2rem', borderRadius: '8px', border: '1px solid rgba(232,99,58,0.35)',
+            color: '#E8633A', fontSize: '0.85rem', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+          }}>🌐 Public Profile</Link>
         </div>
       </div>
 

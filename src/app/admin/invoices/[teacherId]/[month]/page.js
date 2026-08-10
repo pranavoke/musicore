@@ -96,22 +96,22 @@ export default function InvoicePage({ params }) {
 
       const [{ data: t }, { data: l }] = await Promise.all([
         supabase.from('teachers').select('*').eq('id', teacherId).single(),
-        supabase.from('lesson_plans')
+        supabase.from('lessons')
           .select('*, students(name)')
           .eq('teacher_id', teacherId)
-          .eq('status', 'completed')
-          .gte('booking_date', startDate)
-          .lte('booking_date', endDate)
-          .order('booking_date'),
+          .eq('status', 'submitted')
+          .gte('lesson_date', startDate)
+          .lte('lesson_date', endDate)
+          .order('lesson_date'),
       ])
       setTeacher(t)
       setRows((l || []).map(lesson => ({
         id: lesson.id,
         student: lesson.students?.name || '',
-        date: lesson.booking_date || '',
+        date: lesson.lesson_date || '',
         type: lesson.lesson_format || '',
         duration: String(lesson.duration || ''),
-        comment: lesson.admin_notes || '',
+        comment: lesson.comments || '',
         value: getLessonValue(lesson.lesson_format, lesson.duration),
         isCustom: false,
       })))
@@ -234,7 +234,7 @@ export default function InvoicePage({ params }) {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ padding: '28px', textAlign: 'center', color: '#aaa', fontStyle: 'italic' }}>
-                    No rows. Add a custom row or go back and mark lessons as completed.
+                    No lessons logged for this month. Add a custom row or ask the teacher to submit their attendance records.
                   </td>
                 </tr>
               ) : rows.map((row, i) => (

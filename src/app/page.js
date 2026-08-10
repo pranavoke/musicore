@@ -344,7 +344,7 @@ function Navbar({ onBook }) {
           <span>+971 56 796 1376</span>
         </a>
 
-        {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['faq', 'FAQ'], ['contact', 'Contact']].map(([id, label]) => (
+        {[['instruments', 'Instruments'], ['lessons', 'Lessons'], ['teachers', 'Teachers'], ['faq', 'FAQ'], ['contact', 'Contact']].map(([id, label]) => (
           <button key={id} onClick={() => scrollTo(id)}
             style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: '0.88rem', letterSpacing: '0.03em', padding: 0, transition: 'color 0.2s' }}
             onMouseEnter={e => e.target.style.color = '#fff'}
@@ -667,7 +667,7 @@ function HowItWorks() {
               opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(38px)',
               transition: `all 0.65s ease ${i * 0.14}s`,
             }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.8rem', color: 'rgba(232,99,58,0.22)', lineHeight: 1, marginBottom: '0.9rem' }}>{s.n}</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '5.5rem', color: '#E8633A', lineHeight: 1, marginBottom: '0.9rem', textShadow: '0 0 40px rgba(232,99,58,0.45)' }}>{s.n}</div>
               <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '0.98rem', color: '#fff', margin: '0 0 0.7rem', lineHeight: 1.4 }}>{s.title}</h3>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '0.88rem', color: 'rgba(255,255,255,0.48)', lineHeight: 1.75, margin: 0 }}>{s.body}</p>
             </div>
@@ -781,6 +781,74 @@ function Contact() {
   )
 }
 
+// ─── TEACHERS ── dark ─────────────────────────────────────────────────────────
+function Teachers() {
+  const [teachers, setTeachers] = useState([])
+
+  useEffect(() => {
+    fetch('/api/public/teachers')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setTeachers(data) })
+      .catch(() => {})
+  }, [])
+
+  if (teachers.length === 0) return null
+
+  return (
+    <section id="teachers" className="page-section" style={{ background: '#120C07', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '3rem' }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.75rem', letterSpacing: '0.16em', color: '#E8633A', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Your Instructors</p>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(38px, 6vw, 68px)', color: '#fff', margin: 0, letterSpacing: '0.02em' }}>Meet Our Teachers</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+          {teachers.map((t) => (
+            <a key={t.id} href={`/teachers/${t.slug}`}
+              style={{
+                display: 'block', textDecoration: 'none',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '16px', overflow: 'hidden',
+                transition: 'border-color 0.2s, transform 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(232,99,58,0.4)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              {/* Photo */}
+              <div style={{ height: '280px', overflow: 'hidden', background: '#0A0806' }}>
+                {t.photo_url
+                  ? <img src={t.photo_url} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+                  : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '4rem', color: 'rgba(232,99,58,0.2)' }}>
+                      {t.name?.[0]}
+                    </div>
+                }
+              </div>
+
+              {/* Info */}
+              <div style={{ padding: '1.4rem 1.6rem' }}>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.5rem', color: '#fff', letterSpacing: '0.04em', margin: '0 0 0.3rem' }}>{t.name}</h3>
+                {t.subtitle && <p style={{ fontFamily: "'DM Sans', sans-serif", fontStyle: 'italic', fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', margin: '0 0 0.9rem', fontWeight: 300 }}>{t.subtitle}</p>}
+
+                {t.tags?.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '1.2rem' }}>
+                    {t.tags.slice(0, 3).map(tag => (
+                      <span key={tag} style={{ border: '1px solid rgba(232,99,58,0.35)', borderRadius: '100px', padding: '0.18rem 0.6rem', fontSize: '0.72rem', color: '#E8633A', fontFamily: "'DM Sans', sans-serif" }}>{tag}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#E8633A', fontSize: '0.85rem', fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
+                  View Profile <span>→</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
@@ -837,10 +905,11 @@ export default function Home() {
       <Navbar onBook={() => book('Online')} />
       <Hero onBook={() => book('Online')} />
       <LessonTypes onBookOnline={() => book('Online')} onBookHome={() => book('At Home')} />
-      <About />
-      <WhyMusicore />
+      <Teachers />
       <Instruments />
+      <WhyMusicore />
       <HowItWorks />
+      <About />
       <FAQ />
       <Contact />
       <Footer />
