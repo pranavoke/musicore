@@ -146,15 +146,17 @@ export default function InvoicePage({ params }) {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: white !important; margin: 0; padding: 0; }
-          .invoice-card { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
-          .invoice-p1 { padding: 16mm 18mm !important; }
-          .invoice-p2 { padding: 16mm 18mm !important; page-break-before: always; border-top: none !important; }
+          .desktop-sidebar, .mobile-header, .mobile-drawer { display: none !important; }
+          .portal-main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+          html, body { height: auto !important; min-height: 0 !important; background: white !important; margin: 0; padding: 0; }
+          .invoice-card { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+          .invoice-p1 { padding: 14mm 16mm !important; }
+          .invoice-p2 { padding: 14mm 16mm !important; page-break-before: always; border-top: none !important; }
           .invoice-table th, .invoice-table td { font-size: 9pt !important; padding: 4px 7px !important; }
           .remarks-box { font-size: 9pt !important; border: 1px solid #ccc !important; }
           .edit-input { cursor: default !important; }
           .row-editing { background: #fff !important; }
-          @page { size: A4; margin: 0; }
+          @page { size: A4 portrait; margin: 0; }
         }
         .edit-cell-wrap:hover { background: rgba(232,99,58,0.04); border-radius: 3px; }
         .edit-cell-wrap:focus-within { background: rgba(232,99,58,0.07); border-radius: 3px; outline: 1px solid rgba(232,99,58,0.35); }
@@ -178,15 +180,19 @@ export default function InvoicePage({ params }) {
           <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
             {rows.length} row{rows.length !== 1 ? 's' : ''} · AED {totalValue.toLocaleString()}
           </span>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-            <button onClick={() => window.print()} style={{
-              padding: '0.65rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              background: '#E8633A', color: '#fff', fontSize: '0.9rem', fontWeight: 500,
-            }}>🖨️ Print / Save PDF</button>
-            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
-              To save PDF: print dialog → Destination → <em>Save as PDF</em>
-            </span>
-          </div>
+          <button onClick={() => window.print()} style={{
+            padding: '0.65rem 1.4rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)',
+            background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: '0.88rem', fontWeight: 500, cursor: 'pointer',
+          }}>🖨️ Print</button>
+          <button onClick={() => {
+            const prev = document.title
+            document.title = `Invoice-${teacher.name.replace(/\s+/g, '-')}-${month}`
+            window.print()
+            document.title = prev
+          }} style={{
+            padding: '0.65rem 1.4rem', borderRadius: '8px', border: 'none', cursor: 'pointer',
+            background: '#E8633A', color: '#fff', fontSize: '0.88rem', fontWeight: 500,
+          }}>⬇ Save PDF</button>
         </div>
       </div>
 
@@ -204,15 +210,15 @@ export default function InvoicePage({ params }) {
           <InvoiceHeader invoiceNo={invoiceNo} month={month} />
 
           {/* To / From */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '28px' }}>
-            <div style={{ background: '#f7f7f7', borderRadius: '8px', padding: '16px 18px', borderLeft: '3px solid #E8633A' }}>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '28px' }}>
+            <div style={{ flex: 1, background: '#f7f7f7', borderRadius: '8px', padding: '16px 18px', borderLeft: '3px solid #E8633A' }}>
               <div style={{ fontSize: '0.67rem', color: '#999', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>To</div>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px' }}>Musicore LLC</div>
               <div style={{ fontSize: '0.82rem', color: '#555', lineHeight: 1.55 }}>
                 Sharjah Media City<br />Sharjah, United Arab Emirates<br />info@musicoreuae.com
               </div>
             </div>
-            <div style={{ background: '#f7f7f7', borderRadius: '8px', padding: '16px 18px', borderLeft: '3px solid #E8633A' }}>
+            <div style={{ flex: 1, background: '#f7f7f7', borderRadius: '8px', padding: '16px 18px', borderLeft: '3px solid #E8633A' }}>
               <div style={{ fontSize: '0.67rem', color: '#999', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Professional Service From</div>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px' }}>{teacher.name}</div>
               <div style={{ fontSize: '0.82rem', color: '#555', lineHeight: 1.55 }}>
