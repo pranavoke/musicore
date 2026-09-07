@@ -2,6 +2,96 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+const RENEW_OPTIONS = [
+  { count: 1,  label: '1 Lesson',   plan: 'Single'      },
+  { count: 4,  label: '4 Lessons',  plan: 'Monthly'     },
+  { count: 8,  label: '8 Lessons',  plan: 'Bi-Monthly'  },
+  { count: 12, label: '12 Lessons', plan: 'Quarterly'   },
+  { count: 24, label: '24 Lessons', plan: 'Semi-Annual' },
+]
+
+function RenewModal({ group, onClose, onRenewed }) {
+  const [selected, setSelected] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleRenew() {
+    if (!selected) return
+    setLoading(true)
+    const opt = RENEW_OPTIONS.find(o => o.count === selected)
+    const groupId = crypto.randomUUID()
+    const base = {
+      teacher_id:    group.sessions[0].teacher_id,
+      student_id:    group.sessions[0].student_id,
+      instrument:    group.instrument,
+      lesson_format: group.lesson_format,
+      duration:      group.duration,
+      status:        'upcoming',
+      plan:          opt.plan,
+      group_id:      selected > 1 ? groupId : null,
+      booking_date:  null,
+      booking_time:  null,
+    }
+    const payload = selected === 1 ? base : Array.from({ length: selected }, () => ({ ...base }))
+    await fetch('/api/admin/lesson-plans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    setLoading(false)
+    onRenewed()
+    onClose()
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 300,
+      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+    }} onClick={onClose}>
+      <div style={{
+        background: '#1a1208', border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '420px',
+      }} onClick={e => e.stopPropagation()}>
+        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', color: '#fff', margin: '0 0 0.3rem', letterSpacing: '0.04em' }}>Renew Plan</h3>
+        <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.4)', margin: '0 0 1.5rem' }}>
+          {group.student?.name} · {group.teacher?.name} · {group.instrument}
+        </p>
+
+        <p style={{ fontSize: '0.72rem', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Select number of lessons</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem', marginBottom: '1.5rem' }}>
+          {RENEW_OPTIONS.map(o => (
+            <button key={o.count} type="button" onClick={() => setSelected(o.count)} style={{
+              padding: '0.7rem 0.2rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+              border: selected === o.count ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
+              background: selected === o.count ? 'rgba(232,99,58,0.15)' : 'rgba(255,255,255,0.03)',
+              fontFamily: "'DM Sans', sans-serif", transition: 'all 0.15s',
+            }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: selected === o.count ? '#E8633A' : 'rgba(255,255,255,0.7)' }}>{o.count}</div>
+              <div style={{ fontSize: '0.6rem', color: selected === o.count ? 'rgba(232,99,58,0.7)' : 'rgba(255,255,255,0.3)', marginTop: '2px' }}>{o.plan}</div>
+            </button>
+          ))}
+        </div>
+
+        <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+          New sessions will be created without dates — set them individually after renewal.
+        </p>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button onClick={handleRenew} disabled={!selected || loading} style={{
+            flex: 1, padding: '0.8rem', borderRadius: '8px', border: 'none', cursor: selected && !loading ? 'pointer' : 'not-allowed',
+            background: selected ? '#E8633A' : 'rgba(255,255,255,0.08)', color: selected ? '#fff' : 'rgba(255,255,255,0.3)',
+            fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.15s',
+          }}>{loading ? 'Creating...' : 'Renew Plan'}</button>
+          <button onClick={onClose} style={{
+            padding: '0.8rem 1.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+            background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', cursor: 'pointer',
+          }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const STATUS_COLORS = {
   upcoming:    { bg: 'rgba(46,204,113,0.12)',  color: '#2ECC71', border: 'rgba(46,204,113,0.3)' },
   completed:   { bg: 'rgba(74,144,217,0.12)',  color: '#4A90D9', border: 'rgba(74,144,217,0.3)' },
@@ -88,17 +178,27 @@ function StatusChanger({ session, onChanged }) {
 export default function LessonPlanGroups({ grouped }) {
   const router = useRouter()
   const [expanded, setExpanded] = useState({})
+  const [renewTarget, setRenewTarget] = useState(null)
   const refresh = () => router.refresh()
 
   const toggle = (key) => setExpanded(e => ({ ...e, [key]: !e[key] }))
 
   return (
+    <>
+    {renewTarget && (
+      <RenewModal
+        group={renewTarget}
+        onClose={() => setRenewTarget(null)}
+        onRenewed={refresh}
+      />
+    )}
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {grouped.map((group, gi) => {
         const key = group.group_id || `single-${gi}`
         const isOpen = expanded[key]
         const total = group.sessions.length
         const completed = group.sessions.filter(s => s.status === 'completed').length
+        const allDone = completed === total && total > 0
         const progress = total > 0 ? (completed / total) * 100 : 0
         const isGroup = total > 1
         const next = group.sessions.find(s => s.status === 'upcoming')
@@ -151,7 +251,17 @@ export default function LessonPlanGroups({ grouped }) {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                {/* Single session shows status badge inline */}
+                {allDone && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setRenewTarget(group) }}
+                    style={{
+                      padding: '0.3rem 0.8rem', borderRadius: '6px', cursor: 'pointer',
+                      border: '1px solid rgba(46,204,113,0.4)', background: 'rgba(46,204,113,0.08)',
+                      color: '#2ECC71', fontSize: '0.75rem', fontWeight: 500, fontFamily: 'inherit',
+                    }}>
+                    ↻ Renew
+                  </button>
+                )}
                 {!isGroup && (
                   <StatusChanger session={group.sessions[0]} onChanged={refresh} />
                 )}
@@ -209,5 +319,6 @@ export default function LessonPlanGroups({ grouped }) {
         )
       })}
     </div>
+    </>
   )
 }

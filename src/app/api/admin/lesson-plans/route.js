@@ -12,7 +12,7 @@ export async function POST(request) {
 
   const body = await request.json()
   const admin = createAdminClient()
-  const { data, error } = await admin.from('lesson_plans').insert(body).select().single()
+  const { data, error } = await admin.from('lesson_plans').insert(body).select()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json(data)
+  return NextResponse.json(Array.isArray(body) ? data : data[0])
 }

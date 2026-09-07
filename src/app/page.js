@@ -38,9 +38,11 @@ const COUNTRY_CODES = [
 ]
 
 const PLANS = [
-  { name: 'Single',    sessions: '1 session',              price: { 45: 200,  60: 230  } },
-  { name: 'Monthly',   sessions: '4 sessions / month',     price: { 45: 800,  60: 920  } },
-  { name: 'Quarterly', sessions: '12 sessions / 3 months', price: { 45: 2700, 60: 2700 } },
+  { name: 'Single',      sessions: '1 session',              count: 1  },
+  { name: 'Monthly',     sessions: '4 sessions / month',     count: 4  },
+  { name: 'Bi-Monthly',  sessions: '8 sessions / 2 months',  count: 8  },
+  { name: 'Quarterly',   sessions: '12 sessions / 3 months', count: 12 },
+  { name: 'Semi-Annual', sessions: '24 sessions / 6 months', count: 24 },
 ]
 
 function BookingModal({ onClose, defaultFormat, defaultPlan }) {
@@ -203,20 +205,20 @@ function BookingModal({ onClose, defaultFormat, defaultPlan }) {
 
                 <div>
                   <label style={labelStyle}>Plan *</label>
-                  <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
                     {PLANS.map(p => {
                       const selected = form.plan === p.name
                       return (
                         <button type="button" key={p.name}
                           onClick={() => set('plan', p.name)}
                           style={{
-                            flex: 1, padding: '0.7rem 0.3rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                            padding: '0.65rem 0.2rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
                             border: selected ? '1px solid #E8633A' : '1px solid rgba(255,255,255,0.1)',
                             background: selected ? 'rgba(232,99,58,0.12)' : 'rgba(255,255,255,0.03)',
                             fontFamily: "'DM Sans', sans-serif", transition: 'all 0.15s',
                           }}>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: selected ? '#E8633A' : 'rgba(255,255,255,0.7)', marginBottom: '3px' }}>{p.name}</div>
-                          <div style={{ fontSize: '0.68rem', color: selected ? 'rgba(232,99,58,0.7)' : 'rgba(255,255,255,0.3)' }}>{p.sessions}</div>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: selected ? '#E8633A' : 'rgba(255,255,255,0.7)', marginBottom: '2px' }}>{p.count}</div>
+                          <div style={{ fontSize: '0.62rem', color: selected ? 'rgba(232,99,58,0.7)' : 'rgba(255,255,255,0.3)', lineHeight: 1.3 }}>{p.name}</div>
                         </button>
                       )
                     })}

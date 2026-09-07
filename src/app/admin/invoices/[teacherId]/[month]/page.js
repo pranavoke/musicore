@@ -174,14 +174,19 @@ export default function InvoicePage({ params }) {
             {teacher.name} — {formatMonth(month)}
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
             {rows.length} row{rows.length !== 1 ? 's' : ''} · AED {totalValue.toLocaleString()}
           </span>
-          <button onClick={() => window.print()} style={{
-            padding: '0.65rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer',
-            background: '#E8633A', color: '#fff', fontSize: '0.9rem', fontWeight: 500,
-          }}>Print / Save PDF</button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+            <button onClick={() => window.print()} style={{
+              padding: '0.65rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer',
+              background: '#E8633A', color: '#fff', fontSize: '0.9rem', fontWeight: 500,
+            }}>🖨️ Print / Save PDF</button>
+            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
+              To save PDF: print dialog → Destination → <em>Save as PDF</em>
+            </span>
+          </div>
         </div>
       </div>
 
