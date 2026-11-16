@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /teacher/
+Disallow: /api/
+Allow: /teachers/
+Allow: /
+
+Sitemap: https://musicoreuae.com/sitemap.xml

@@ -1,6 +1,83 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 
+// ─── STRUCTURED DATA (JSON-LD) ────────────────────────────────────────────────
+const BASE_URL = 'https://musicoreuae.com'
+
+function StructuredData({ faqs }) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': ['LocalBusiness', 'EducationalOrganization'],
+        '@id': `${BASE_URL}/#organization`,
+        name: 'Musicore',
+        alternateName: ['Musicore Dubai', 'Musicore UAE', 'Musicore Music School'],
+        description: 'Professional one-on-one music lessons at your home or online in Dubai. Expert teachers for Guitar, Piano, Drums, Violin and Vocals. All ages, all levels welcome.',
+        url: BASE_URL,
+        logo: `${BASE_URL}/logo.png`,
+        image: `${BASE_URL}/hero-banner.png`,
+        telephone: '+971567961376',
+        email: 'info@musicoreuae.com',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Dubai',
+          addressRegion: 'Dubai',
+          addressCountry: 'AE',
+        },
+        geo: { '@type': 'GeoCoordinates', latitude: '25.2048', longitude: '55.2708' },
+        areaServed: [
+          { '@type': 'City', name: 'Dubai' },
+          { '@type': 'State', name: 'Dubai, UAE' },
+        ],
+        priceRange: 'AED 80 – AED 230 per session',
+        currenciesAccepted: 'AED',
+        paymentAccepted: 'Cash, Bank Transfer',
+        sameAs: [`https://wa.me/971567961376`],
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Music Lessons Dubai',
+          itemListElement: [
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Guitar Lessons Dubai', description: 'One-on-one guitar lessons at home or online in Dubai for all ages and levels.' } },
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Piano Lessons Dubai', description: 'One-on-one piano lessons at home or online in Dubai for all ages and levels.' } },
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Drums Lessons Dubai', description: 'One-on-one drums lessons at home or online in Dubai for all ages and levels.' } },
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Violin Lessons Dubai', description: 'One-on-one violin lessons at home or online in Dubai.' } },
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Vocal Lessons Dubai', description: 'One-on-one singing and vocal lessons at home or online in Dubai.' } },
+            { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Online Music Lessons UAE', description: 'Online music lessons via video call for students across the UAE.' } },
+          ],
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${BASE_URL}/#website`,
+        url: BASE_URL,
+        name: 'Musicore',
+        description: 'Music Lessons at Home in Dubai',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: { '@type': 'EntryPoint', urlTemplate: `${BASE_URL}/?q={search_term_string}` },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  )
+}
+
 // ─── BOOKING MODAL ────────────────────────────────────────────────────────────
 const BOOKING_INSTRUMENTS = ['Guitar', 'Piano', 'Drums', 'Vocals', 'Violin']
 
@@ -885,6 +962,7 @@ export default function Home() {
 
   return (
     <>
+      <StructuredData faqs={FAQS} />
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }

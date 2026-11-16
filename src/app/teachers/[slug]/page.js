@@ -6,11 +6,21 @@ const WHATSAPP_LINK = `https://wa.me/971567961376?text=Hi%20Musicore!%20I%27d%20
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const admin = createAdminClient()
-  const { data: t } = await admin.from('teachers').select('name, subtitle, bio').eq('slug', slug).single()
+  const { data: t } = await admin.from('teachers').select('name, subtitle, bio, photo_url, instruments_text').eq('slug', slug).single()
   if (!t) return { title: 'Teacher | Musicore' }
+  const description = t.bio?.slice(0, 155) || t.subtitle || `${t.name} is a music teacher at Musicore Dubai.`
+  const image = t.photo_url || '/hero-banner.png'
   return {
-    title: `${t.name} | Musicore Dubai`,
-    description: t.bio?.slice(0, 155) || t.subtitle || '',
+    title: `${t.name} – Music Teacher Dubai | Musicore`,
+    description,
+    alternates: { canonical: `https://musicoreuae.com/teachers/${slug}` },
+    openGraph: {
+      title: `${t.name} | Musicore Dubai`,
+      description,
+      type: 'profile',
+      images: [{ url: image, alt: `${t.name} – Music Teacher at Musicore Dubai` }],
+    },
+    twitter: { card: 'summary_large_image', title: `${t.name} | Musicore`, description, images: [image] },
   }
 }
 
@@ -29,8 +39,26 @@ export default async function TeacherProfilePage({ params }) {
   const learnItems = teacher.learn_items || []
   const tags = teacher.tags || []
 
+  const teacherSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: teacher.name,
+    jobTitle: `${teacher.instrument || 'Music'} Instructor`,
+    description: teacher.bio || teacher.subtitle || '',
+    image: teacher.photo_url || '',
+    worksFor: { '@type': 'Organization', name: 'Musicore', url: 'https://musicoreuae.com' },
+    url: `https://musicoreuae.com/teachers/${slug}`,
+    knowsAbout: tags,
+    hasOccupation: {
+      '@type': 'Occupation',
+      name: 'Music Teacher',
+      occupationLocation: { '@type': 'City', name: 'Dubai' },
+    },
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teacherSchema) }} />
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
